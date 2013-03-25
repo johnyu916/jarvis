@@ -30,6 +30,8 @@ namespace Jarvis{
         class PinLabel{
             public:
                 PinLabel(string name, Pin *_pin);
+                Pin* pin(){ return pin_;}
+                string name(){ return name_;}
             private:
                 string name_;
                 Pin *pin_;
@@ -41,8 +43,11 @@ namespace Jarvis{
                 Device();
                 Device(string name, string type);
                 list<Device *>& devices(){return devices_;}
+                Device* device(string name);
                 list<Element *>& elements(){return elements_;}
+                Element* element(string name);
                 list<PinLabel *>& pinLabels(){return pinLabels_;}
+                PinLabel* pinLabel(string name);
                 string name(){return name_;}
                 string type(){return type_;}
             private:
@@ -62,6 +67,8 @@ namespace Jarvis{
         public:
             Wire(Pin *pin0, Pin *pin1);
             list<Pin *> *pins(){return &pins_;}
+            //new pin
+            void deletePin(Pin *pin);
             
             bool state(){ return state_; }
             void state(bool state){state_=state;}
@@ -71,10 +78,10 @@ namespace Jarvis{
             list<Pin *> pins_;
         };
 
-        class Pin {
+        class Pin{
             public:
                 Pin(Wire *wire);
-                void wire(Wire *wire){wire_=wire;}
+                void wire(Wire *wire);
                 Wire *wire(){return wire_;}
             private:
                 Wire *wire_;
@@ -106,22 +113,24 @@ namespace Jarvis{
         };
 
 
-        class Transistor : public Element{
+        class Switch : public Element{
             //transistor has 3 wires.
         public:
-            Transistor(string name);
+            Switch(string name);
             enum PIN_NAME{
                 P0 = 0,
                 P1,
                 IN
             };
-            Pin *pin(PIN_NAME name);
+            //Pin *pin(PIN_NAME name);
+            Pin *pin(string name);
         private:
             Pin *_p0, *_p1, *_in;
 
         };
 
         //contains stuff at the current level
+        Device* deviceWithName(Device* device, string name);
         Element* elementWithName(Device* device, string name);
         Pin* pinWithName(Device* device, string name);
         bool isExistWithName(string name);

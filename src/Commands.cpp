@@ -17,22 +17,57 @@ namespace Jarvis{
         string nameOne = command.front();
         command.pop_front();
         Device *canvas = State::instance().device();
-        Element *one = elementWithName(canvas, nameOne);
-        Pin *pinOne;
-        if (one == NULL) return NULL;
-        
-        //do we need to get the pin?
-        string type = one->type();
-        if (type == "TRANSISTOR" || type == "DEVICE"){
-            string pinName = command.front();
-            command.pop_front();
-            return elementWithName(one, pinName);
+        Element *oneElement = canvas->element(nameOne);
+
+        if (oneElement != NULL){
+            string type = oneElement->type();
+            if (type == "SWITCH"){
+                Switch *swit = (Switch *)oneElement;
+                //get second word
+                string pinName = command.front();
+                command.pop_front();
+                return swit->pin(pinName);
+
+            }
+            else{
+                if (type == "POWER"){
+                    Power *power = (Power *)oneElement;
+                    return power->pin();
+                }
+                else if (type == "GROUND"){
+                    Ground *ground = (Ground *)oneElement;
+                    return ground->pin();
+
+                }
+                else if (type == "METER"){
+                    Meter *meter = (Meter *)oneElement;
+                    return meter->pin();
+
+                }
+                else{
+                    //hmm this is not possible
+                    return NULL;
+                }
+            }
         }
-        else if (type == "PIN"){
-            return one;
-        }
-        else{
-            return one->pin();
+        else { //must be device
+
+            Device *oneDevice = canvas->device(nameOne);
+            Pin *pinOne;
+            if (oneDevice == NULL) return NULL;
+            
+            //do we need to get the pin?
+            string type = oneDevice->type();
+            int size = oneDevice->pinLabels().size();
+            if (size == 0) return NULL;
+            else if (size == 1){
+                return oneDevice->pinLabels().front()->pin();
+            }
+            else{
+                string pinName = command.front();
+                command.pop_front();
+                return oneDevice->pinLabel(pinName)->pin();
+            }
         }
     }
 
@@ -57,7 +92,7 @@ namespace Jarvis{
                 return 5;
             }
             else if (type == "transistor"){
-                element = new Transistor(name);
+                element = new Switch(name);
             }
             else if (type == "power"){
                 element = new Power(name);
@@ -67,6 +102,9 @@ namespace Jarvis{
             }
             else if (type == "meter"){
                 element = new Meter(name);
+            }
+            else if (type == "DEVICE"){
+                
             }
             else{
                 //bleh
@@ -88,7 +126,8 @@ namespace Jarvis{
             Pin *pinTwo = getPinWithCommand(command);
             if (pinTwo == NULL) return 11;
             //everything is ready
-            element = new Wire(pinOne, pinTwo);
+            Wire* newWire= new Wire(pinOne, pinTwo);
+            
         }
     }
 }
