@@ -1,0 +1,7 @@
+Importance:
+3 - must do ASAP
+2 - should do soon
+1 - nice to have
+
+
+1 - Modularize the command line parsing, accepting file as input.

@@ -1,0 +1,92 @@
+jarvis
+======
+
+Fictional computer hardware design tool.
+
+shell based simulation.
+
+interacting with machine:
+
+1. you can set the inputs before machine begins.
+2. you can read the output at any time after machine begins.
+3. you can start the machine.
+4. you can stop the machine.
+5. you can specify a clock input.  
+6. you can take snapshots.
+
+machine design:
+
+1. you can save machine state.
+2. you can link different machines.
+3. you can place gates
+4. you can place wiring.
+5. you can perform testing.
+
+User case 1:
+User specifies some design from a sheet.
+
+
+Design Language Specification:
+
+>> load componentType componentName
+>> load wire wireName deviceName0 pinName0 deviceName1 pinName1
+
+loads a component
+
+componentTypes:
+
+wire
+transistor
+power
+ground
+meter
+
+componentName:
+
+unique name
+
+Wire is a unique case, as it must be constructed with at least two components; it cannot stand alone on its own. You may specify more than 2 components
+
+You can specify multiple component names to create more than one
+
+>> link deviceName pinName deviceName pinName
+>> link pinName0 pinName1
+
+if device has only 1 pin, then it is not necessary to specify pin name.
+
+>> save deviceName
+
+fail if name already exists.
+
+>> show
+>> show deviceName
+
+show shows the current canvas
+show deviceName shows the device
+
+>> unload
+>> unload deviceName
+unload removes everything from the current canvas
+unload device removes some deviceID or no-op if it doesn't exist 
+
+Test Language Specification:
+
+>> set inputID value
+value:
+high
+low
+
+>> run
+>> run step
+run test. it can potentially run for a long time, so it needs to run on the background. or it may need timeouts. runs in a separate thread. if already running, then stop and run again. 
+>> s
+>> step
+step 
+>> show
+show values at every wire
+
+>> stop
+stop (freeze) the machine, if it is running.
+
+
+
