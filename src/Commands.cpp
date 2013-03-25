@@ -47,8 +47,9 @@ namespace Jarvis{
         Device *canvas = State::instance().device();
 
         //ensure name is not already taken
-        Element *element = elementWithName(canvas ,name);
-        if (element != NULL) return 6;
+        bool isExist = isExistWithName(name);
+        if (isExist) return 6;
+        Element *element;
 
         if (size == 2){
             //this cannot be wire

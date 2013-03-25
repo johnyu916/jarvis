@@ -36,16 +36,20 @@ namespace Jarvis{
         };
 
         //a device can have devices and basic components inside
-        class Device : public Element{
+        class Device {
             public:
                 Device();
                 Device(string name, string type);
                 list<Device *>& devices(){return devices_;}
-                //list<Element *>& elements(){return elements_;}
+                list<Element *>& elements(){return elements_;}
                 list<PinLabel *>& pinLabels(){return pinLabels_;}
+                string name(){return name_;}
+                string type(){return type_;}
             private:
+                string name_;
+                string type_;
                 list<Device *>devices_;
-                //list<Element *>elements_;
+                list<Element *>elements_;
                 list<PinLabel *>pinLabels_;
         };
 
@@ -117,9 +121,10 @@ namespace Jarvis{
 
         };
 
-        //contains stuff
-
-        Element *elementWithName(Device *device, string name);
+        //contains stuff at the current level
+        Element* elementWithName(Device* device, string name);
+        Pin* pinWithName(Device* device, string name);
+        bool isExistWithName(string name);
     }
 }
 

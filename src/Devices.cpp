@@ -14,9 +14,8 @@ namespace Jarvis{
         Ground::Ground(string name):Element(name,"GROUND"){
 
         }
-        
 
-        Element *elementWithName(Device *device, string name){
+        Device *deviceWithName(Device *device, string name){
             if (device->name() == name) return device;
             list<Element *> elements = device->elements();
             list<Element *>::iterator eiter;
