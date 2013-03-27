@@ -1,10 +1,12 @@
 #include "Commands.h"
-#include "Devices.h"
+#include "Compute.h"
+#include "Parser.h"
 #include "State.h"
+#include <fstream>
+#include <sstream>
 
 namespace Jarvis{
     using namespace Devices;
-
 
     void tokenize(string line, list<string>&tokens){
         istringstream stream(line);
@@ -31,7 +33,7 @@ namespace Jarvis{
 
     //get pin from current canvas
     Pin *getPinWithCommand(Command cmd){
-        list<string>command = command.tokens();
+        list<string>command = cmd.tokens();
         string nameOne = command.front();
         command.pop_front();
         Device *canvas = cmd.device();
@@ -47,17 +49,21 @@ namespace Jarvis{
                 return swit->pin(pinName);
 
             }
+            else if (type == "POWER"){
+                Power *power = (Power *)oneElement;
+                string pinName = command.front();
+                command.pop_front();
+                return power->pin(pinName);
+            }
             else{
-                if (type == "POWER"){
-                    Power *power = (Power *)oneElement;
-                    return power->pin();
-                }
+                /*
                 else if (type == "GROUND"){
                     Ground *ground = (Ground *)oneElement;
                     return ground->pin();
 
                 }
-                else if (type == "METER"){
+                */
+                if (type == "METER"){
                     Meter *meter = (Meter *)oneElement;
                     return meter->pin();
 
@@ -102,7 +108,7 @@ namespace Jarvis{
         Device *canvas = cmd.device();
 
         //ensure name is not already taken
-        bool isExist = isExistWithName(name);
+        bool isExist = isExistWithName(canvas, name);
         if (isExist) return 6;
         Element *element;
 
@@ -117,9 +123,11 @@ namespace Jarvis{
             else if (type == "power"){
                 element = new Power(name);
             }
+            /*
             else if (type == "ground"){
                 element = new Ground(name);
             }
+            */
             else if (type == "meter"){
                 element = new Meter(name);
             }
@@ -142,7 +150,7 @@ namespace Jarvis{
 
    int runLink(Command command){
         //needs at least 2 more
-       list<string> tokens = cmd.tokens();
+       list<string> tokens = command.tokens();
         int size = tokens.size();
         
         if (size <= 1 || size > 4) return 8;
@@ -153,26 +161,27 @@ namespace Jarvis{
         Pin *pinTwo = getPinWithCommand(command);
         if (pinTwo == NULL) return 11;
         //it is okay of one or neither of them have wires. but it is not okay if both have wires
-        linkPins(pinOne, pinTwo);
+        return linkPins(pinOne, pinTwo);
 
-        return 0;
             
     }
     int runUnlink(Command command){
-        list<string> tokens = cmd.tokens();
+        list<string> tokens = command.tokens();
         int size = tokens.size();
         if (size <= 1 || size > 2) return 18;
         Pin *pinOne = getPinWithCommand(command);
 
-        return unlinkPin(pin);     
+        return unlinkPin(pinOne);     
     }
     int runLabel(Command command){
         //must be at lest two
         Pin *pinOne = getPinWithCommand(command);
         if (pinOne == NULL) return 14;
 
-        string name = command.front();
-        command.pop_front();
+        list<string>tokens = command.tokens();
+
+        string name = tokens.front();
+        tokens.pop_front();
         Device *device = command.device();
         PinLabel* label = new PinLabel(name,pinOne);
         device->pinLabels().push_back(label);
@@ -180,14 +189,15 @@ namespace Jarvis{
     }
     int runRun(Command command){
         //lets run
-        list<string>tokens = command.tokens()
+        list<string>tokens = command.tokens();
         if (tokens.size() == 0) return 16;
         string stepsString = tokens.front();
-        int steps = (int)stepsString;
+        int steps=0;
+        istringstream(stepsString) >> steps;
 
         //turn on first
         while (steps > 0){
-
+            compute(command.device());
             steps--;
         }
         
@@ -196,12 +206,13 @@ namespace Jarvis{
     int runSave(Command command){
         return 0;
         //save to file
-        if (command.tokens() == 0) return 16;
-        string name = command.front();
+        list<string>tokens = command.tokens();
+        if (tokens.size() == 0) return 16;
+        string name = tokens.front();
         if (name == "") return 17;
         name.append("desc"); 
         //see if file exists. if exists, stop.
-        ifstream input(name);
+        ifstream input(name.c_str());
         if (input.is_open()){
             input.close();
             return 18;
@@ -210,5 +221,8 @@ namespace Jarvis{
 
        // ofstream out(name);
         
+    }
+    int runShow(Command command){
+        return 0;
     }
 }

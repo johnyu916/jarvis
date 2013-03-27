@@ -29,7 +29,8 @@ namespace Jarvis{
 
         class PinLabel{
             public:
-                PinLabel(string name, Pin *_pin);
+                PinLabel(string name, Pin *pin);
+                ~PinLabel();
                 Pin* pin(){ return pin_;}
                 string name(){ return name_;}
             private:
@@ -41,6 +42,7 @@ namespace Jarvis{
         class Device {
             public:
                 Device();
+                ~Device();
                 Device(string name, string type);
                 list<Device *>& devices(){return devices_;}
                 Device* device(string name);
@@ -56,6 +58,7 @@ namespace Jarvis{
                 list<Device *>devices_;
                 list<Element *>elements_;
                 list<PinLabel *>pinLabels_;
+
         };
 
         //wire always has at least two devices connected to it. some conditions:
@@ -82,7 +85,8 @@ namespace Jarvis{
 
         class Pin{
             public:
-                Pin(Wire *wire);
+                Pin(Element *element);
+                ~Pin();
                 void wire(Wire *wire){ wire_=wire;}
                 Wire *wire(){return wire_;}
                 Element *element(){
@@ -96,6 +100,7 @@ namespace Jarvis{
         class Meter : public Element{
         public:
             Meter(string name);
+            ~Meter();
             Pin *pin(){return pin_;}
         private:
             Pin *pin_;
@@ -104,6 +109,7 @@ namespace Jarvis{
         class Power : public Element{
         public:
             Power(string name);
+            ~Power();
             Pin *pin(string type);
         private:
             Pin *source_, *ground_;
@@ -124,6 +130,7 @@ namespace Jarvis{
             //transistor has 3 wires.
         public:
             Switch(string name);
+            ~Switch();
             enum PIN_NAME{
                 P0 = 0,
                 P1,
@@ -138,13 +145,18 @@ namespace Jarvis{
         };
 
         //contains stuff at the current level
-        void linkWireAndPin(Wire *wire, Pin *pin);
-        void unlinkWireAndPin(Wire *wire, Pin *pin);
+        int linkPins(Pin *pin0, Pin* pin1);
+        //void linkWireAndPin(Wire *wire, Pin *pin);
+        int unlinkPin(Pin *pin);
+        //void unlinkWireAndPin(Wire *wire, Pin *pin);
+
+
+        void deviceClear(Device *device);
 
         Device* deviceWithName(Device* device, string name);
         Element* elementWithName(Device* device, string name);
         Pin* pinWithName(Device* device, string name);
-        bool isExistWithName(string name);
+        bool isExistWithName(Device *device, string name);
     }
 }
 

@@ -17,13 +17,21 @@ namespace Jarvis{
             if (! in_->wire()->state()) return NULL;
 
             if (inPin == p0_) return p1_;
-            else if (inPin == p1_) return p0;
+            else if (inPin == p1_) return p0_;
             else return NULL;
         }
         Power::Power(string name):Element(name,"POWER"){
+            source_ = new Pin(this);
+            ground_ = new Pin(this);
+
+        }
+        Pin *Power::pin(string type){
+            if (type == "SOURCE") return source_;
+            else if (type == "GROUND") return ground_;
+            else return NULL;
         }
         Power::~Power(){
-            delete pin_;
+            delete source_, ground_;
         }
         Meter::Meter(string name):Element(name,"METER"){
 
@@ -31,12 +39,14 @@ namespace Jarvis{
         Meter::~Meter(){
             delete pin_;
         }
+        /*
         Ground::Ground(string name):Element(name,"GROUND"){
 
         }
         Ground::~Ground(){
             delete pin_;
         }
+        */
         Device::Device():name_("UNNAMED"),type_("UNTYPED"){
 
         }
@@ -44,25 +54,28 @@ namespace Jarvis{
 
         }
         Device::~Device(){
-            clear();
+            deviceClear(this);
         }
 
-        Device::clear(){
+        void deviceClear(Device *device){
             //unload everything
+            list<Device *>devices = device->devices();
             list<Device *>::iterator dit;
-            for (dit = devices_.begin(); dit != devices_.end(); dit++){
+            for (dit = devices.begin(); dit != devices.end(); dit++){
                 Device *device = (*dit);
                 delete device;
             }
 
+            list<Element *>elements = device->elements();
             list<Element *>::iterator eit;
-            for (eit = elements_.begin(); eit != elements_.end(); eit++){
-i               Element *element = (*eit);
+            for (eit = elements.begin(); eit != elements.end(); eit++){
+                Element *element = (*eit);
                 delete element;
             }
 
+            list<PinLabel *>pinLabels = device->pinLabels();
             list<PinLabel *>::iterator pit;
-            for (pit = pinLabels_.begin(); pit != pinLabels_.end(); pit++){
+            for (pit = pinLabels.begin(); pit != pinLabels.end(); pit++){
                 PinLabel *label = (*pit);
                 delete label;
 
@@ -96,8 +109,7 @@ i               Element *element = (*eit);
             }
             return NULL;
         }
-        bool isExistWithName(string name){
-            Device *canvas = State::instance().device();
+        bool isExistWithName(Device *canvas, string name){
             Device *device = canvas->device(name);
             if (device) return true;
             Element *element = canvas->element(name);
@@ -152,8 +164,14 @@ i               Element *element = (*eit);
             }
             wire_=wire;
         }*/
+        Pin::Pin(Element *element){
+            element_ = element;
+            wire_ = NULL;
+        }
         Pin::~Pin(){
-            wire_->deletePin(this);            
+            //wire_->deletePin(this);            
+        }
+        PinLabel::PinLabel(string name, Pin *pin):name_(name),pin_(pin){
         }
         PinLabel::~PinLabel(){
             pin_ = NULL;
@@ -184,13 +202,14 @@ i               Element *element = (*eit);
             return 0;
         }
 
-        void unlinkPin(Pin *pin){
+        int unlinkPin(Pin *pin){
             Wire* wire = pin->wire();
-            if (wire == NULL) return;
+            if (wire == NULL) return 1;
             pin->wire(NULL);
             wire->pins().remove(pin);
             //if there are no pins left, destroy self.
-            if (wire->pins().size() == 0) delete this;
+            if (wire->pins().size() == 0) delete wire;
+            return 0;
         }
     }
 }

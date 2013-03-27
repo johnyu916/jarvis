@@ -3,13 +3,15 @@
 
 #include <list>
 #include <string>
+#include "Devices.h"
 
 using namespace std;
 namespace Jarvis{
+    using namespace Devices;
     class Command{
         public:
             Command(string line, Device* device);
-            list<string>& tokens(){return tokens_};
+            list<string>& tokens(){return tokens_;}
             Device *device(){return device_;}
         private:
             list<string> tokens_;
@@ -29,8 +31,11 @@ namespace Jarvis{
     }; */
     int runLoad(Command cmd);
     int runLink(Command command);
+    int runUnlink(Command command);
     int runLabel(Command command);
+    int runRun(Command command);
     int runSave(Command command);
+    int runShow(Command command);
     
     //int runLoad(list<string> command);
     

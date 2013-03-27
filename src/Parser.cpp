@@ -1,4 +1,10 @@
+#include <fstream>
+#include <sstream>
+#include <iostream>
+
+#include "Parser.h"
 namespace Jarvis{
+    using namespace Devices;
     //return 0 if true
     int runCommand(Command command){
         //tokenize?
@@ -29,7 +35,8 @@ namespace Jarvis{
                 //reset device to new
                 //Device *device = new Device();
                 //State::instance().device(device);
-                command.device()->clear();
+                //command.device()->clear();
+                deviceClear(command.device());
                 return 0;
             }
             else{
@@ -55,22 +62,22 @@ namespace Jarvis{
             else if (first == "run"){
                 return runRun(command); 
             }
-            else if (fisrt == "show"){
-
+            else if (first == "show"){
+                return runShow(command);
             }
             else{
                 return 2;
             }
         }
     }
-    int runScript(char *fileName){
+    int runScript(string fileName){
         Device *device = new Device();
         runScript(fileName, device);
     }
 
-    int runScript(char *fileName, Device *device){
+    int runScript(string fileName, Device *device){
         string line;
-        ifstream stream(fileName);
+        ifstream stream(fileName.c_str());
 
         if (stream.is_open()){
             while (stream.good()){

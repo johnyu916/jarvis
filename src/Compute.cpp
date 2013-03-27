@@ -1,11 +1,10 @@
 #include "Compute.h"
-#include "Devices.h"
 
 namespace Jarvis{
+    using namespace Devices;
     void upWires(list<Wire *>wires){
-        list<Wire *>pins = wire->pins();
         list<Wire *>::iterator it;
-        for (it = pins.begin(); it != pins.end(); it++){
+        for (it = wires.begin(); it != wires.end(); it++){
             Wire *wire = (*it);
             wire->state(true);
         }
@@ -27,7 +26,7 @@ namespace Jarvis{
             Element *element = pin->element();
             if (element->type() == "POWER"){
                 Power *power = (Power *)element;
-                if (pin == power->ground()){
+                if (pin == power->pin("GROUND")){
                     //end reached.
                     upWires(wires);
                     return;
@@ -36,7 +35,7 @@ namespace Jarvis{
             else if (element->type() == "SWITCH"){
                 Switch *switc = (Switch *)element;
                 Pin *nextPin = switc->outPin(pin);
-                spanMesh(nextPin);
+                spanMesh(nextPin,wires);
             }
         }
     }
@@ -49,20 +48,22 @@ namespace Jarvis{
          *
          */
         list<Element *> elements=  device->elements();
-        list<Elementi *>::iterator it;
+        list<Element *>::iterator it;
         for (it = elements.begin(); it != elements.end(); it++){
             Element *e = (*it);
             if (e->type() == "POWER"){
                 Power *power = (Power *)e;
-                Pin *source = power->source();
-                spanMesh(source);
+                Pin *source = power->pin("SOURCE");
+                list<Wire *>wires;
+                spanMesh(source,wires);
             }
         }
 
         list<Device *>devices = device->devices();
-        list<Device *>::iterator it;
-        for (it = devices.begin(); it != devices.end(); it++){
-            resetDevice(*it);
+        list<Device *>::iterator dit;
+        for (dit = devices.begin(); dit != devices.end(); dit++){
+            compute(*dit);
+            //resetDevice(*it);
         }
     }
     /*
