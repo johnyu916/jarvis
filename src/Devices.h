@@ -10,7 +10,7 @@ namespace Jarvis{
         //primitive device types
         enum DEVICE_TYPE{
             POWER = 0,
-            GROUND,
+            //GROUND,
             TRANSISTOR,
             METER,
         };
@@ -63,12 +63,14 @@ namespace Jarvis{
         //2. only one of the devices can be ground.
         //3. only one of the devices can be input.
         //4. only one of the devices can be output.
+        //TODO: delete
         class Wire {
         public:
             Wire(Pin *pin0, Pin *pin1);
-            list<Pin *> *pins(){return &pins_;}
+            list<Pin *>& pins(){return pins_;}
             //new pin
-            void deletePin(Pin *pin);
+            //void linkPin(Pin *pin);
+            //void unlinkPin(Pin *pin);
             
             bool state(){ return state_; }
             void state(bool state){state_=state;}
@@ -81,10 +83,14 @@ namespace Jarvis{
         class Pin{
             public:
                 Pin(Wire *wire);
-                void wire(Wire *wire);
+                void wire(Wire *wire){ wire_=wire;}
                 Wire *wire(){return wire_;}
+                Element *element(){
+                    return element_;
+                }
             private:
                 Wire *wire_;
+                Element *element_;
         };
 
         class Meter : public Element{
@@ -98,11 +104,12 @@ namespace Jarvis{
         class Power : public Element{
         public:
             Power(string name);
-            Pin *pin(){return pin_;}
+            Pin *pin(string type);
         private:
-            Pin *pin_;
+            Pin *source_, *ground_;
         };
 
+        /*
         class Ground : public Element{
         public:
             Ground(string name);
@@ -111,7 +118,7 @@ namespace Jarvis{
         private:
             Pin *pin_;
         };
-
+        */
 
         class Switch : public Element{
             //transistor has 3 wires.
@@ -124,12 +131,16 @@ namespace Jarvis{
             };
             //Pin *pin(PIN_NAME name);
             Pin *pin(string name);
+            Pin *outPin(Pin *pin);
         private:
-            Pin *_p0, *_p1, *_in;
+            Pin *p0_, *p1_, *in_;
 
         };
 
         //contains stuff at the current level
+        void linkWireAndPin(Wire *wire, Pin *pin);
+        void unlinkWireAndPin(Wire *wire, Pin *pin);
+
         Device* deviceWithName(Device* device, string name);
         Element* elementWithName(Device* device, string name);
         Pin* pinWithName(Device* device, string name);

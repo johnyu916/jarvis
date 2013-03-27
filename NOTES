@@ -29,7 +29,7 @@ User specifies some design from a sheet.
 Design Language Specification:
 
 >> load componentType componentName
->> load wire wireName deviceName0 pinName0 deviceName1 pinName1
+>> load wire wireName deviceName0 pinName0 deviceName1 pinName1 >> DEPRECATED. use link instead
 
 loads a component
 
@@ -54,6 +54,11 @@ You can specify multiple component names to create more than one
 
 if device has only 1 pin, then it is not necessary to specify pin name.
 
+>> unlink pinName
+>> unlink devieName pinName
+
+disconnect the pin from any wire
+
 >> save deviceName
 
 fail if name already exists.
@@ -77,7 +82,7 @@ high
 low
 
 >> run
->> run step
+>> run 1
 run test. it can potentially run for a long time, so it needs to run on the background. or it may need timeouts. runs in a separate thread. if already running, then stop and run again. 
 >> s
 >> step

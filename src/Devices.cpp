@@ -7,19 +7,66 @@ namespace Jarvis{
 
         Switch::Switch(string name):Element(name,"SWITCH"){
         }
+        Switch::~Switch(){
+            delete p0_;
+            delete p1_;
+            delete in_;
+        }
+        Pin *Switch::outPin(Pin *inPin){
+            //first off, is switch on?
+            if (! in_->wire()->state()) return NULL;
+
+            if (inPin == p0_) return p1_;
+            else if (inPin == p1_) return p0;
+            else return NULL;
+        }
         Power::Power(string name):Element(name,"POWER"){
+        }
+        Power::~Power(){
+            delete pin_;
         }
         Meter::Meter(string name):Element(name,"METER"){
 
         }
+        Meter::~Meter(){
+            delete pin_;
+        }
         Ground::Ground(string name):Element(name,"GROUND"){
 
+        }
+        Ground::~Ground(){
+            delete pin_;
         }
         Device::Device():name_("UNNAMED"),type_("UNTYPED"){
 
         }
         Device::Device(string name, string type):name_(name),type_(type){
 
+        }
+        Device::~Device(){
+            clear();
+        }
+
+        Device::clear(){
+            //unload everything
+            list<Device *>::iterator dit;
+            for (dit = devices_.begin(); dit != devices_.end(); dit++){
+                Device *device = (*dit);
+                delete device;
+            }
+
+            list<Element *>::iterator eit;
+            for (eit = elements_.begin(); eit != elements_.end(); eit++){
+i               Element *element = (*eit);
+                delete element;
+            }
+
+            list<PinLabel *>::iterator pit;
+            for (pit = pinLabels_.begin(); pit != pinLabels_.end(); pit++){
+                PinLabel *label = (*pit);
+                delete label;
+
+            }
         }
         PinLabel* Device::pinLabel(string name){
             list<PinLabel*>::iterator iter;
@@ -73,36 +120,77 @@ namespace Jarvis{
         }
 
         Wire::Wire(Pin *pin0, Pin *pin1):state_(false),reachable_(false){
-
             pins_.push_back(pin0);
             pins_.push_back(pin1);
-            pin0->wire(this);
-            pin1->wire(this);
         }
-        void Wire::deletePin(Pin *pin){
-            pins_.remove(pin);
+        /*
+        void Wire::linkPin(Pin *pin){
         }
+        void Wire::unlinkPin(Pin *pin){
+        }
+        */
 
         Pin* Switch::pin(string name){
             if (name == "P0"){
-                return _p0;
+                return p0_;
             }
             else if (name == "P1"){
-                return _p1;
+                return p1_;
             }
             else if (name == "IN"){
-                return _in;
+                return in_;
             }
             else{
                 return NULL;
             }
         }
+        /*
         void Pin::wire(Wire *wire){
             //previous wire should remove it
             if (wire_){
                 wire_->deletePin(this);
             }
             wire_=wire;
+        }*/
+        Pin::~Pin(){
+            wire_->deletePin(this);            
+        }
+        PinLabel::~PinLabel(){
+            pin_ = NULL;
+        }
+
+        //pre: pins must exist
+        //link pin0 and pin1.
+        //if pin0 and pin1 are both attached to some wire, then return (you should disconnect at least one pin from its wire first with call to unlink)
+        int linkPins(Pin *pin0, Pin* pin1){
+            Wire *wire0 = pin0->wire();
+            Wire *wire1 = pin1->wire();
+
+            if (wire1 && wire0) return 14;
+            else if (wire0 && !wire1){
+                pin1->wire(wire0);
+                wire0->pins().push_back(pin1);
+            }
+            else if (!wire0 && wire1){
+                pin0->wire(wire1);
+                wire1->pins().push_back(pin0);
+            }
+            else {
+                Wire* wire = new Wire(pin0,pin1);
+                pin0->wire(wire);
+                pin1->wire(wire);
+
+            }
+            return 0;
+        }
+
+        void unlinkPin(Pin *pin){
+            Wire* wire = pin->wire();
+            if (wire == NULL) return;
+            pin->wire(NULL);
+            wire->pins().remove(pin);
+            //if there are no pins left, destroy self.
+            if (wire->pins().size() == 0) delete this;
         }
     }
 }

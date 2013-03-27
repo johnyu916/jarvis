@@ -1,21 +1,21 @@
 load and2 gate
 load meter m0
-load wire meter gate out
+link meter gate out
 load ground g0 g1
 load power p0 p1
-load wire wire0 g0 gate in0
-load wire wire1 g1 gate in1
+link g0 gate in0
+link g1 gate in1
 run 3 
 show m0
-unplug wire1 g1
-plug wire1 p1
+unlink g1
+unlink p1
 run 3
 show m0
-unplug wire0 g0
-plug wire0 p0
+unlink g0
+link g0 p0
 run 3
 show m0
-unplug wire1 p1
-plug wire1 g1
+unlink p1
+link p0 g1
 run 3
 show m0

@@ -4,6 +4,23 @@
 
 namespace Jarvis{
     using namespace Devices;
+
+
+    void tokenize(string line, list<string>&tokens){
+        istringstream stream(line);
+        while (stream.good()){
+            string token;
+            stream >> token;
+            tokens.push_back(token);
+        }
+    }
+
+    Command::Command(string line, Device* device){
+        //lets set the tokens
+        tokenize(line, tokens_);
+        device_=device;
+    }
+
     /*
     LoadCommand::LoadCommand(list<string> commands){
         type_="";
@@ -13,10 +30,11 @@ namespace Jarvis{
     }*/
 
     //get pin from current canvas
-    Pin *getPinWithCommand(list<string>command){
+    Pin *getPinWithCommand(Command cmd){
+        list<string>command = command.tokens();
         string nameOne = command.front();
         command.pop_front();
-        Device *canvas = State::instance().device();
+        Device *canvas = cmd.device();
         Element *oneElement = canvas->element(nameOne);
 
         if (oneElement != NULL){
@@ -71,7 +89,9 @@ namespace Jarvis{
         }
     }
 
-    int runLoad(list<string> command){
+    int runLoad(Command cmd){
+   // int runLoad(list<string> command){
+       list<string> command = cmd.tokens();
         int size = command.size();
         if (size < 2) return 13;
         string type = command.front();
@@ -79,7 +99,7 @@ namespace Jarvis{
         string name = command.front();
         command.pop_front();
 
-        Device *canvas = State::instance().device();
+        Device *canvas = cmd.device();
 
         //ensure name is not already taken
         bool isExist = isExistWithName(name);
@@ -88,10 +108,10 @@ namespace Jarvis{
 
         if (size == 2){
             //this cannot be wire
-            if (type == "wire"){
+            if (type == "WIRE"){
                 return 5;
             }
-            else if (type == "transistor"){
+            else if (type == "SWITCH"){
                 element = new Switch(name);
             }
             else if (type == "power"){
@@ -103,31 +123,92 @@ namespace Jarvis{
             else if (type == "meter"){
                 element = new Meter(name);
             }
-            else if (type == "DEVICE"){
-                
-            }
             else{
+                //this may be a device. look for it.
+                type.append(".desc");
+                int result = runScript(type, canvas);
+                if (result == 0){
+                    return 0;
+                }
+                else{
                 //bleh
-                return 7;
+                    return 7;
+                }
             }
             canvas->elements().push_back(element);
+            return 0;
+        }
+   }
 
-        }
-        else{
-            if (type != "wire"){
-                return 10;
-            }
-            //needs at least 2 more
-            if (size == 3) return 8;
-            //get first pin
-            Pin *pinOne = getPinWithCommand(command);
-            if (pinOne == NULL) return 9;
-            //get second pin
-            Pin *pinTwo = getPinWithCommand(command);
-            if (pinTwo == NULL) return 11;
-            //everything is ready
-            Wire* newWire= new Wire(pinOne, pinTwo);
+   int runLink(Command command){
+        //needs at least 2 more
+       list<string> tokens = cmd.tokens();
+        int size = tokens.size();
+        
+        if (size <= 1 || size > 4) return 8;
+        //get first pin
+        Pin *pinOne = getPinWithCommand(command);
+        if (pinOne == NULL) return 9;
+        //get second pin
+        Pin *pinTwo = getPinWithCommand(command);
+        if (pinTwo == NULL) return 11;
+        //it is okay of one or neither of them have wires. but it is not okay if both have wires
+        linkPins(pinOne, pinTwo);
+
+        return 0;
             
+    }
+    int runUnlink(Command command){
+        list<string> tokens = cmd.tokens();
+        int size = tokens.size();
+        if (size <= 1 || size > 2) return 18;
+        Pin *pinOne = getPinWithCommand(command);
+
+        return unlinkPin(pin);     
+    }
+    int runLabel(Command command){
+        //must be at lest two
+        Pin *pinOne = getPinWithCommand(command);
+        if (pinOne == NULL) return 14;
+
+        string name = command.front();
+        command.pop_front();
+        Device *device = command.device();
+        PinLabel* label = new PinLabel(name,pinOne);
+        device->pinLabels().push_back(label);
+        return 0;
+    }
+    int runRun(Command command){
+        //lets run
+        list<string>tokens = command.tokens()
+        if (tokens.size() == 0) return 16;
+        string stepsString = tokens.front();
+        int steps = (int)stepsString;
+
+        //turn on first
+        while (steps > 0){
+
+            steps--;
         }
+        
+        
+    }
+    int runSave(Command command){
+        return 0;
+        //save to file
+        if (command.tokens() == 0) return 16;
+        string name = command.front();
+        if (name == "") return 17;
+        name.append("desc"); 
+        //see if file exists. if exists, stop.
+        ifstream input(name);
+        if (input.is_open()){
+            input.close();
+            return 18;
+        }
+
+
+       // ofstream out(name);
+        
     }
 }

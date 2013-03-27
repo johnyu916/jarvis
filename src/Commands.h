@@ -6,6 +6,15 @@
 
 using namespace std;
 namespace Jarvis{
+    class Command{
+        public:
+            Command(string line, Device* device);
+            list<string>& tokens(){return tokens_};
+            Device *device(){return device_;}
+        private:
+            list<string> tokens_;
+            Device *device_;
+    };
     /*
     class LoadCommand{
         public:
@@ -18,8 +27,12 @@ namespace Jarvis{
             string name_;
             list<string> args_;
     }; */
-    //int runLoad(LoadCommand cmd);
-    int runLoad(list<string> command);
+    int runLoad(Command cmd);
+    int runLink(Command command);
+    int runLabel(Command command);
+    int runSave(Command command);
+    
+    //int runLoad(list<string> command);
     
 }
 #endif
