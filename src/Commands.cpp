@@ -123,6 +123,9 @@ namespace Jarvis{
             else if (type == "power"){
                 element = new Power(name);
             }
+            else if (type == "INPUT"){
+                element = new Input(name);
+            }
             /*
             else if (type == "ground"){
                 element = new Ground(name);
@@ -147,6 +150,29 @@ namespace Jarvis{
             return 0;
         }
    }
+    int runSet(Command command){
+       list<string> tokens = command.tokens();
+        int size = tokens.size();
+        
+        if (size != 2) return 20;
+        string name = tokens.front();
+        tokens.pop_front();
+
+        Element *element = command.device()->element(name);
+        if (element == NULL || element->type() != "INPUT") return 24;
+
+        Input *input = (Input *)element;
+
+        if (input == NULL) return 21;
+    
+        string value = tokens.front();
+        tokens.pop_front();
+
+        if (value == "high") input->state(true);
+        else if (value == "low") input->state(false);
+        else return 22;
+        return 0;
+    }
 
    int runLink(Command command){
         //needs at least 2 more
@@ -218,11 +244,39 @@ namespace Jarvis{
             return 18;
         }
 
-
        // ofstream out(name);
         
     }
+
+    void printDevice(Device *device){
+        //print following:
+        //1. it's name
+        //2. it's type
+
+        //3. sub-device names and types. also their pinLabels and wire that it is connected to. 
+        //4. element names and their types
+
+    }
+    //what are some interesting things to show?
+    //value at output pin
+    //connectivity (structure)
+    //
     int runShow(Command command){
+        list<string>tokens = command.tokens();
+        if (tokens.size() == 0){
+            //no tokens. show everything
+            return 0;
+        }
+        
+        string name = tokens.front();
+        if (name == "CANVAS"){
+            //printDevice(command.device());
+            devicePrint(command.device());
+            return 0;
+        }
+        //try to locate this element
+
+
         return 0;
     }
 }

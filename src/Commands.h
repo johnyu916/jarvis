@@ -35,6 +35,7 @@ namespace Jarvis{
     int runLabel(Command command);
     int runRun(Command command);
     int runSave(Command command);
+    int runSet(Command command);
     int runShow(Command command);
     
     //int runLoad(list<string> command);

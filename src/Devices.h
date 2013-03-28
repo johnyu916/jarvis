@@ -13,6 +13,7 @@ namespace Jarvis{
             //GROUND,
             TRANSISTOR,
             METER,
+            SIGNAL,
         };
         
         class Element{
@@ -58,7 +59,6 @@ namespace Jarvis{
                 list<Device *>devices_;
                 list<Element *>elements_;
                 list<PinLabel *>pinLabels_;
-
         };
 
         //wire always has at least two devices connected to it. some conditions:
@@ -74,6 +74,7 @@ namespace Jarvis{
             //new pin
             //void linkPin(Pin *pin);
             //void unlinkPin(Pin *pin);
+            string name();
             
             bool state(){ return state_; }
             void state(bool state){state_=state;}
@@ -85,8 +86,9 @@ namespace Jarvis{
 
         class Pin{
             public:
-                Pin(Element *element);
+                Pin(Element *element, string name);
                 ~Pin();
+                string name(){ return name_;}
                 void wire(Wire *wire){ wire_=wire;}
                 Wire *wire(){return wire_;}
                 Element *element(){
@@ -95,6 +97,19 @@ namespace Jarvis{
             private:
                 Wire *wire_;
                 Element *element_;
+                string name_;
+        };
+        class Input : public Element{
+        public:
+            Input(string name);
+            ~Input();
+            Pin *pin(){return pin_;}
+            void state(bool input);
+            bool state(){return state_;}
+        private:
+            Pin *pin_;
+            bool state_;
+            
         };
 
         class Meter : public Element{
@@ -153,8 +168,12 @@ namespace Jarvis{
 
         void deviceClear(Device *device);
 
+        void devicePrint(Device *device);
+        void elementPrint(Element *element);
+
         Device* deviceWithName(Device* device, string name);
         Element* elementWithName(Device* device, string name);
+        
         Pin* pinWithName(Device* device, string name);
         bool isExistWithName(Device *device, string name);
     }

@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include "Devices.h"
 #include "State.h"
 namespace Jarvis{
@@ -21,8 +23,12 @@ namespace Jarvis{
             else return NULL;
         }
         Power::Power(string name):Element(name,"POWER"){
-            source_ = new Pin(this);
-            ground_ = new Pin(this);
+            string pinName = name;
+            pinName.append("Source");
+            source_ = new Pin(this,pinName);
+            pinName = name;
+            pinName.append("Ground");
+            ground_ = new Pin(this,pinName);
 
         }
         Pin *Power::pin(string type){
@@ -33,8 +39,21 @@ namespace Jarvis{
         Power::~Power(){
             delete source_, ground_;
         }
-        Meter::Meter(string name):Element(name,"METER"){
+        Input::Input(string name):Element(name,"INPUT"){
+            state_ = false;
+            pin_ = new Pin(this, "pin");
+        }
+        Input::~Input(){
+            delete pin_;
+        }
+        void Input::state(bool input){
+            //if any wire attached, set it to input
+            state_=input;
+        }
+        
 
+        Meter::Meter(string name):Element(name,"METER"){
+            pin_ = new Pin(this,name);
         }
         Meter::~Meter(){
             delete pin_;
@@ -131,9 +150,87 @@ namespace Jarvis{
             return NULL;
         }
 
+        void printNameTypeLabels(Device *device){
+            cout <<device->name()<<" "<< device->type() <<endl;
+            list<PinLabel *> labels= device->pinLabels();
+            list<PinLabel *>::iterator liter;
+            for (liter = labels.begin(); liter != labels.end(); liter++){
+                PinLabel *label = (*liter);
+                cout << label->name();
+                cout <<" ";
+                cout << label->pin()->wire()->name() <<endl;
+            }
+
+        }
+
+        void devicePrint(Device *device){
+            printNameTypeLabels(device);
+
+            list<Device *> devices = device->devices();
+            list<Device *>::iterator diter;
+            for (diter = devices.begin(); diter != devices.end(); diter++){
+                Device *child = (*diter);
+                printNameTypeLabels(child);
+            }
+
+            list<Element *>elements = device->elements();
+            list<Element *>::iterator eit;
+            for (eit = elements.begin(); eit != elements.end(); eit++){
+                Element *element = (*eit);
+                elementPrint(element);
+            }
+        }
+
+
+        void elementPrint(Element *element){
+            cout <<"element: "<<element->name()<<" "<<element->type()<<endl;
+            string type = element->type();
+            Wire *wire;
+            if (type == "POWER"){
+                Power *power = (Power *)element;
+                cout <<"source: ";
+                wire = power->pin("SOURCE")->wire();
+                cout <<wire->name() << " "<<wire->state();
+                cout <<" gorund: ";
+                wire = power->pin("GROUND")->wire();
+                cout <<wire->name() << " "<<wire->state();
+                cout <<endl;
+            }
+            else if (type == "SWITCH"){
+                Switch *switc = (Switch *)element;
+                cout <<"P0: ";
+                cout <<switc->pin("P0")->wire()->name();
+                cout <<" P1: ";
+                cout <<switc->pin("P1")->wire()->name();
+                cout <<" IN: ";
+                cout <<switc->pin("IN")->wire()->name();
+                cout <<endl;
+
+            }
+            else if (type == "METER"){
+                Meter *meter = (Meter *)element;
+                cout <<"Meter ";
+                cout <<meter->pin()->wire()->name();
+                cout <<endl;
+            }
+            else{
+                //nothing
+            }
+        }
+
         Wire::Wire(Pin *pin0, Pin *pin1):state_(false),reachable_(false){
             pins_.push_back(pin0);
             pins_.push_back(pin1);
+        }
+        string Wire::name(){
+            //stringtogether the pin names
+            list<Pin *>::iterator pit;
+            string name ="";
+            for (pit = pins_.begin(); pit != pins_.end(); pit++){
+                Pin *pin = (*pit);
+                name.append(pin->name());
+            }
+            return name;
         }
         /*
         void Wire::linkPin(Pin *pin){
@@ -164,9 +261,10 @@ namespace Jarvis{
             }
             wire_=wire;
         }*/
-        Pin::Pin(Element *element){
+        Pin::Pin(Element *element, string name){
             element_ = element;
             wire_ = NULL;
+            name_=name;
         }
         Pin::~Pin(){
             //wire_->deletePin(this);            

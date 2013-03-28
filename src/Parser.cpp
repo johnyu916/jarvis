@@ -56,6 +56,9 @@ namespace Jarvis{
             else if (first == "save"){
                 return runSave(command);
             }
+            else if (first == "set"){
+                return runSet(command);
+            }
             else if (first == "unlink"){
                 return runUnlink(command);
             }
