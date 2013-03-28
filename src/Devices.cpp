@@ -16,7 +16,7 @@ namespace Jarvis{
         }
         Pin *Switch::outPin(Pin *inPin){
             //first off, is switch on?
-            if (! in_->wire()->state()) return NULL;
+            if (!state_) return NULL;
 
             if (inPin == p0_) return p1_;
             else if (inPin == p1_) return p0_;
@@ -282,7 +282,10 @@ namespace Jarvis{
             Wire *wire0 = pin0->wire();
             Wire *wire1 = pin1->wire();
 
-            if (wire1 && wire0) return 14;
+            if (wire1 && wire0) {
+                cerr <<"Both pins already connected to some wire"<<endl;
+                return 14;
+            }
             else if (wire0 && !wire1){
                 pin1->wire(wire0);
                 wire0->pins().push_back(pin1);

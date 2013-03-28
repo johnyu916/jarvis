@@ -12,6 +12,7 @@ namespace Jarvis{
         public:
             Command(string line, Device* device);
             list<string>& tokens(){return tokens_;}
+            
             Device *device(){return device_;}
         private:
             list<string> tokens_;

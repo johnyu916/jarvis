@@ -20,7 +20,9 @@ int runShell(){
         //process command
         Command command(line,device);
         int result = runCommand(command);
-        if (result != 0) return result;
+        // -1 is special status from exit
+        if (result == -1) return result;
+        //if (result != 0) return result;
         cout << ">> ";
         
     }
@@ -36,10 +38,10 @@ void printHelp(){
 int main(int argc, char *argv[]){
     //file name
     if (argc == 1){
-        runShell();
+        return runShell();
     }
     else if (argc == 2){
-        runScript(argv[1]);
+        return runScript(argv[1]);
     }
     else{
         printHelp();

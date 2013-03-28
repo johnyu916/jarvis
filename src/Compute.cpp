@@ -39,6 +39,26 @@ namespace Jarvis{
             }
         }
     }
+    void toggleSwitches(Device *device){
+        list<Element *> elements=  device->elements();
+        list<Element *>::iterator it;
+        for (it = elements.begin(); it != elements.end(); it++){
+            Element *e = (*it);
+            if (e->type() == "SWITCH"){
+                Switch *switc = (Switch *)e;
+                bool input = switc->pin("IN")->wire()->state();
+                if (input) switc->state(true);
+                else switc->state(false);
+            }
+        }
+
+        
+        list<Device *>devices = device->devices();
+        list<Device *>::iterator dit;
+        for (dit = devices.begin(); dit != devices.end(); dit++){
+            toggleSwitches(*dit);
+        }
+    }
 
     void compute(Device *device){
     //void resetDevice(Device *device){
@@ -57,14 +77,21 @@ namespace Jarvis{
                 list<Wire *>wires;
                 spanMesh(source,wires);
             }
+            else if (e->type() == "INPUT"){
+                Input *input = (Input *)e;
+                Wire *wire = input->pin()->wire();
+                wire->state(input->state());
+            }
         }
 
         list<Device *>devices = device->devices();
         list<Device *>::iterator dit;
         for (dit = devices.begin(); dit != devices.end(); dit++){
             compute(*dit);
-            //resetDevice(*it);
         }
+
+        //switch on/off happens separately
+        toggleSwitches(device);
     }
     /*
     void compute(Device *device){

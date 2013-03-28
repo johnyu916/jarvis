@@ -1,9 +1,9 @@
 # logical AND2 gate
 clear
 load power pow
-load ground gro
-load transistor t0
-load transistor t1
+#load ground gro
+load switch t0
+load switch t1
 #load pin in0
 #load pin in1
 #load pin out

@@ -3,6 +3,7 @@
 #include "Parser.h"
 #include "State.h"
 #include <fstream>
+#include <iostream>
 #include <sstream>
 
 namespace Jarvis{
@@ -40,6 +41,7 @@ namespace Jarvis{
         Element *oneElement = canvas->element(nameOne);
 
         if (oneElement != NULL){
+            cout <<"element found"<<endl;
             string type = oneElement->type();
             if (type == "SWITCH"){
                 Switch *swit = (Switch *)oneElement;
@@ -69,6 +71,7 @@ namespace Jarvis{
 
                 }
                 else{
+                    cerr << "Unknown element type: "<<type;
                     //hmm this is not possible
                     return NULL;
                 }
@@ -78,28 +81,50 @@ namespace Jarvis{
 
             Device *oneDevice = canvas->device(nameOne);
             Pin *pinOne;
-            if (oneDevice == NULL) return NULL;
-            
+            if (oneDevice == NULL){
+                cerr << "unable to find device with name: "<<nameOne<<endl;
+                return NULL;
+            }
             //do we need to get the pin?
             string type = oneDevice->type();
             int size = oneDevice->pinLabels().size();
-            if (size == 0) return NULL;
+            if (size == 0){
+                cerr <<"Device with name: "<<nameOne<< " has no pinLabels"<<endl;
+                return NULL;
+            }
             else if (size == 1){
                 return oneDevice->pinLabels().front()->pin();
             }
             else{
                 string pinName = command.front();
                 command.pop_front();
-                return oneDevice->pinLabel(pinName)->pin();
+                PinLabel *pinLabel = oneDevice->pinLabel(pinName);
+                if (pinLabel == NULL){
+                    cerr<< "No pinLabel found for pin name: "<<pinName<<endl;
+                    return NULL;
+                }
+                return pinLabel->pin();
             }
         }
     }
 
     int runLoad(Command cmd){
    // int runLoad(list<string> command){
+       //cout <<"in runLoad"<<endl;
+        
+
        list<string> command = cmd.tokens();
         int size = command.size();
-        if (size < 2) return 13;
+        if (size != 2) {
+            cerr << "Must have at least 2 arguments but has: "<<size<<" "<<endl;
+            list<string>::iterator it;
+            for (it = command.begin(); it != command.end(); it++){
+                cerr <<(*it)<<" ";
+            }
+            cerr <<endl;
+            return 13;
+        }
+        
         string type = command.front();
         command.pop_front();
         string name = command.front();
@@ -109,21 +134,27 @@ namespace Jarvis{
 
         //ensure name is not already taken
         bool isExist = isExistWithName(canvas, name);
-        if (isExist) return 6;
+        if (isExist) {
+            cerr << "Part with name: " <<name<< " already exists"<<endl;
+            return 6;
+        }
         Element *element;
 
         if (size == 2){
             //this cannot be wire
-            if (type == "WIRE"){
+            /*
+            if (type == "wire"){
+                cerr << " "<<endl;
                 return 5;
-            }
-            else if (type == "SWITCH"){
+            }*/
+            if (type == "switch"){
                 element = new Switch(name);
             }
             else if (type == "power"){
+                //cout <<"in runLoad power"<<endl;
                 element = new Power(name);
             }
-            else if (type == "INPUT"){
+            else if (type == "input"){
                 element = new Input(name);
             }
             /*
@@ -143,6 +174,7 @@ namespace Jarvis{
                 }
                 else{
                 //bleh
+                    cerr << "failed to run script: "<<type<<endl;
                     return 7;
                 }
             }
@@ -179,16 +211,24 @@ namespace Jarvis{
        list<string> tokens = command.tokens();
         int size = tokens.size();
         
-        if (size <= 1 || size > 4) return 8;
+        if (size <= 1 || size > 4){
+            cerr<< "There should be 2-4 arguments, but there are: "<<size<<endl;
+            return 8;
+        }
         //get first pin
         Pin *pinOne = getPinWithCommand(command);
-        if (pinOne == NULL) return 9;
+        if (pinOne == NULL) {
+            cerr<< "Couldn't find pin one" <<endl;
+            return 9;
+        }
         //get second pin
         Pin *pinTwo = getPinWithCommand(command);
-        if (pinTwo == NULL) return 11;
+        if (pinTwo == NULL) {
+            cerr << "Couldn't find pin two" <<endl;
+            return 11;
+        }
         //it is okay of one or neither of them have wires. but it is not okay if both have wires
         return linkPins(pinOne, pinTwo);
-
             
     }
     int runUnlink(Command command){

@@ -154,9 +154,11 @@ namespace Jarvis{
             //Pin *pin(PIN_NAME name);
             Pin *pin(string name);
             Pin *outPin(Pin *pin);
+            bool state(){return state_;}
+            void state(bool state){state_=state;}
         private:
             Pin *p0_, *p1_, *in_;
-
+            bool state_; 
         };
 
         //contains stuff at the current level

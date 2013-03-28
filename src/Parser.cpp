@@ -8,7 +8,7 @@ namespace Jarvis{
     //return 0 if true
     int runCommand(Command command){
         //tokenize?
-        list<string>tokens = command.tokens();
+        list<string>& tokens = command.tokens();
         //tokenize(line, tokens);
 
         /*
@@ -25,11 +25,22 @@ namespace Jarvis{
             return 0;
         }
         string first = tokens.front();
+        if (first[0] == '#') return 0;
+        //command.tokens().pop_front();
         tokens.pop_front();
+      
+       /*
+        cout <<"tokens left: "; 
+        list<string>::iterator it;
+        for (it = tokens.begin(); it != tokens.end(); it++){
+            cout <<(*it)<<" ";
+        }
+        cout <<endl;
+        */
         if (size == 1){
             if (first == "") return 0;
             else if (first == "exit"){
-                return 1;
+                return -1;
             }
             else if (first == "clear"){
                 //reset device to new
@@ -40,6 +51,7 @@ namespace Jarvis{
                 return 0;
             }
             else{
+                cerr <<"Unknown command: "<<first<<endl;
                 return 2;
             }
         }
@@ -69,6 +81,7 @@ namespace Jarvis{
                 return runShow(command);
             }
             else{
+                cerr <<"Unknown command(2): "<<first<<endl;
                 return 2;
             }
         }
