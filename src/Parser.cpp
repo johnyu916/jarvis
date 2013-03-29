@@ -50,6 +50,9 @@ namespace Jarvis{
                 deviceClear(command.device());
                 return 0;
             }
+            else if (first == "show"){
+                return runShow(command);
+            }
             else{
                 cerr <<"Unknown command: "<<first<<endl;
                 return 2;
@@ -87,7 +90,7 @@ namespace Jarvis{
         }
     }
     int runScript(string fileName){
-        Device *device = new Device();
+        Device *device = new Device("jarvis", "canvas");
         runScript(fileName, device);
     }
 
@@ -99,6 +102,7 @@ namespace Jarvis{
             while (stream.good()){
                 getline(stream, line);
                 Command command(line, device);
+                cout << line <<endl;
                 int result = runCommand(command);
                 if (result !=0) return result;
             }

@@ -8,6 +8,15 @@ namespace Jarvis{
         }
 
         Switch::Switch(string name):Element(name,"SWITCH"){
+            string pinName = name;
+            pinName.append("P0");
+            p0_ = new Pin(this,pinName);
+            pinName = name;
+            pinName.append("P1");
+            p1_ = new Pin(this, pinName);
+            pinName = name;
+            pinName.append("IN");
+            in_ = new Pin(this, pinName);
         }
         Switch::~Switch(){
             delete p0_;
@@ -32,8 +41,8 @@ namespace Jarvis{
 
         }
         Pin *Power::pin(string type){
-            if (type == "SOURCE") return source_;
-            else if (type == "GROUND") return ground_;
+            if (type == "source") return source_;
+            else if (type == "ground") return ground_;
             else return NULL;
         }
         Power::~Power(){
@@ -124,7 +133,7 @@ namespace Jarvis{
             list<Device *>::iterator diter;
             for (diter = devices_.begin(); diter != devices_.end(); diter++){
                 Device* device = (*diter);
-                if (device != NULL) return device;
+                if (device->name() == name) return device;
             }
             return NULL;
         }
@@ -191,7 +200,7 @@ namespace Jarvis{
                 cout <<"source: ";
                 wire = power->pin("SOURCE")->wire();
                 cout <<wire->name() << " "<<wire->state();
-                cout <<" gorund: ";
+                cout <<" ground: ";
                 wire = power->pin("GROUND")->wire();
                 cout <<wire->name() << " "<<wire->state();
                 cout <<endl;
@@ -209,12 +218,15 @@ namespace Jarvis{
             }
             else if (type == "METER"){
                 Meter *meter = (Meter *)element;
-                cout <<"Meter ";
-                cout <<meter->pin()->wire()->name();
+                cout <<"state: ";
+                cout <<meter->pin()->wire()->state();
                 cout <<endl;
             }
-            else{
+            else if (type == "INPUT"){
                 //nothing
+                Input *input = (Input *)element;
+                cout <<"state: ";
+                cout << input->state() <<endl;
             }
         }
 
@@ -240,13 +252,13 @@ namespace Jarvis{
         */
 
         Pin* Switch::pin(string name){
-            if (name == "P0"){
+            if (name == "p0"){
                 return p0_;
             }
-            else if (name == "P1"){
+            else if (name == "p1"){
                 return p1_;
             }
-            else if (name == "IN"){
+            else if (name == "in"){
                 return in_;
             }
             else{
@@ -281,6 +293,7 @@ namespace Jarvis{
         int linkPins(Pin *pin0, Pin* pin1){
             Wire *wire0 = pin0->wire();
             Wire *wire1 = pin1->wire();
+            //cout <<"0"<<endl;
 
             if (wire1 && wire0) {
                 cerr <<"Both pins already connected to some wire"<<endl;
@@ -295,11 +308,13 @@ namespace Jarvis{
                 wire1->pins().push_back(pin0);
             }
             else {
+                //cout <<"1"<<endl;
                 Wire* wire = new Wire(pin0,pin1);
                 pin0->wire(wire);
                 pin1->wire(wire);
 
             }
+            //cout <<"linkpins done"<<endl;
             return 0;
         }
 

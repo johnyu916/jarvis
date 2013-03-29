@@ -33,16 +33,16 @@ namespace Jarvis{
     }*/
 
     //get pin from current canvas
-    Pin *getPinWithCommand(Command cmd){
-        list<string>command = cmd.tokens();
+    Pin *getPinWithCommand(Command& cmd){
+        list<string>& command = cmd.tokens();
         string nameOne = command.front();
         command.pop_front();
         Device *canvas = cmd.device();
         Element *oneElement = canvas->element(nameOne);
 
         if (oneElement != NULL){
-            cout <<"element found"<<endl;
             string type = oneElement->type();
+            //cout <<"element found type: "<<type<<endl;
             if (type == "SWITCH"){
                 Switch *swit = (Switch *)oneElement;
                 //get second word
@@ -57,7 +57,6 @@ namespace Jarvis{
                 command.pop_front();
                 return power->pin(pinName);
             }
-            else{
                 /*
                 else if (type == "GROUND"){
                     Ground *ground = (Ground *)oneElement;
@@ -65,16 +64,18 @@ namespace Jarvis{
 
                 }
                 */
-                if (type == "METER"){
-                    Meter *meter = (Meter *)oneElement;
-                    return meter->pin();
-
-                }
-                else{
-                    cerr << "Unknown element type: "<<type;
-                    //hmm this is not possible
-                    return NULL;
-                }
+            else if (type == "METER"){
+                Meter *meter = (Meter *)oneElement;
+                return meter->pin();
+            }
+            else if (type == "INPUT"){
+                Input *input  = (Input *)oneElement;
+                return input->pin();
+            }
+            else{
+                cerr << "Unknown element type: "<<type;
+                //hmm this is not possible
+                return NULL;
             }
         }
         else { //must be device
@@ -167,9 +168,14 @@ namespace Jarvis{
             }
             else{
                 //this may be a device. look for it.
-                type.append(".desc");
-                int result = runScript(type, canvas);
+                string filename = "descriptions/";
+                filename.append(type);
+                filename.append(".desc");
+                //type.append(".desc");
+                Device *newDevice = new Device(name, type);
+                int result = runScript(filename, newDevice);
                 if (result == 0){
+                    canvas->devices().push_back(newDevice);
                     return 0;
                 }
                 else{
@@ -208,7 +214,7 @@ namespace Jarvis{
 
    int runLink(Command command){
         //needs at least 2 more
-       list<string> tokens = command.tokens();
+       list<string>& tokens = command.tokens();
         int size = tokens.size();
         
         if (size <= 1 || size > 4){
@@ -267,16 +273,18 @@ namespace Jarvis{
             steps--;
         }
         
-        
+        return 0;
     }
     int runSave(Command command){
         return 0;
         //save to file
         list<string>tokens = command.tokens();
         if (tokens.size() == 0) return 16;
-        string name = tokens.front();
+        string name ="descriptions/"; 
+        name.append(tokens.front());
+
         if (name == "") return 17;
-        name.append("desc"); 
+        name.append(".desc"); 
         //see if file exists. if exists, stop.
         ifstream input(name.c_str());
         if (input.is_open()){
@@ -303,16 +311,26 @@ namespace Jarvis{
     //
     int runShow(Command command){
         list<string>tokens = command.tokens();
+        Device *device = command.device();
         if (tokens.size() == 0){
             //no tokens. show everything
+            devicePrint(device);
             return 0;
         }
         
         string name = tokens.front();
         if (name == "CANVAS"){
             //printDevice(command.device());
-            devicePrint(command.device());
+            devicePrint(device);
             return 0;
+        }
+        else{
+            Element *element = device->element(name);
+            if (element != NULL){
+                elementPrint(element);
+            }
+
+
         }
         //try to locate this element
 

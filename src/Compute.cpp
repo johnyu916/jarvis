@@ -46,7 +46,7 @@ namespace Jarvis{
             Element *e = (*it);
             if (e->type() == "SWITCH"){
                 Switch *switc = (Switch *)e;
-                bool input = switc->pin("IN")->wire()->state();
+                bool input = switc->pin("in")->wire()->state();
                 if (input) switc->state(true);
                 else switc->state(false);
             }

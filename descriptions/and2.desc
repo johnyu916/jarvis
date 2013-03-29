@@ -8,16 +8,16 @@ load switch t1
 #load pin in1
 #load pin out
 #load wire PowToT0 pow t0 p0
-link pow t0 p0
+link pow source t0 p0
 #load wire T0toT1 t0 p1 t1 p0
 link t0 p1 t1 p0
 #load wire T1toGro t1 p1 gro
-link t1 p1 gro
+link t1 p1 pow ground
 #load wire I0ToT0 in0 t0 in
 #load wire I1ToT1 in1 t1 in
 #plug PowToT0 out
 label t0 in in0
 label t1 in in1
 label t0 p0 out
-save and2
+#save and2
 
