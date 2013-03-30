@@ -1,4 +1,5 @@
 #include "Compute.h"
+#include <iostream>
 
 namespace Jarvis{
     using namespace Devices;
@@ -7,15 +8,18 @@ namespace Jarvis{
         for (it = wires.begin(); it != wires.end(); it++){
             Wire *wire = (*it);
             wire->state(true);
+            //cout <<"upped wire: "<<wire->info()<<endl;
         }
     }
     void spanMesh(Pin *source, list<Wire *>wires){
+        //cout <<"entering spanMesh"<<endl;
         /* 1. try to reach the end. 
          * 2. if end is reached, must go back and turn all wires on in the path
          */
         if (source == NULL) return;
 
         Wire *wire = source->wire();
+        //cout <<"spanMesh wire: "<< wire->info()<<endl;
         wires.push_back(wire);
         list<Pin *>pins = wire->pins();
         list<Pin *>::iterator it;
@@ -24,15 +28,16 @@ namespace Jarvis{
             if (pin == source) continue;
             //get element for power
             Element *element = pin->element();
-            if (element->type() == "POWER"){
+            if (element->type() == "power"){
                 Power *power = (Power *)element;
-                if (pin == power->pin("GROUND")){
+                if (pin == power->pin("ground")){
+        //cout <<"ground reached: "<<endl;
                     //end reached.
                     upWires(wires);
                     return;
                 }
             }
-            else if (element->type() == "SWITCH"){
+            else if (element->type() == "switch"){
                 Switch *switc = (Switch *)element;
                 Pin *nextPin = switc->outPin(pin);
                 spanMesh(nextPin,wires);
@@ -44,7 +49,7 @@ namespace Jarvis{
         list<Element *>::iterator it;
         for (it = elements.begin(); it != elements.end(); it++){
             Element *e = (*it);
-            if (e->type() == "SWITCH"){
+            if (e->type() == "switch"){
                 Switch *switc = (Switch *)e;
                 bool input = switc->pin("in")->wire()->state();
                 if (input) switc->state(true);
@@ -71,9 +76,9 @@ namespace Jarvis{
         list<Element *>::iterator it;
         for (it = elements.begin(); it != elements.end(); it++){
             Element *e = (*it);
-            if (e->type() == "POWER"){
+            if (e->type() == "power"){
                 Power *power = (Power *)e;
-                Pin *source = power->pin("SOURCE");
+                Pin *source = power->pin("source");
                 list<Wire *>wires;
                 spanMesh(source,wires);
             }
@@ -101,7 +106,7 @@ namespace Jarvis{
         list<Elementi *>::iterator it;
         for (it = elements.begin(); it != elements.end(); it++){
             Element *element = (*it);
-            if (element->type() == "SWITCH"){
+            if (element->type() == "switch"){
                 Switch *swi = (Switch *)element;
                 
             }

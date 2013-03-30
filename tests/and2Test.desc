@@ -1,0 +1,32 @@
+load and2 gate
+load meter m0
+link m0 gate out
+#load ground g0 g1
+#load power p0 p1
+load input i0
+load input i1
+#link g0 gate in0
+#link g1 gate in1
+link i0 gate in0
+link i1 gate in1
+#show
+run 3 
+show m0
+#unlink g1
+#unlink p1
+set i0 high
+set i1 low
+run 3
+show m0
+#unlink g0
+#link g0 p0
+set i0 low
+set i1 high
+run 3
+show m0
+#unlink p1
+#link p0 g1
+set i0 high
+set i1 high
+run 3
+show m0

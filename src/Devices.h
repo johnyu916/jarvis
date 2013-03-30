@@ -21,6 +21,7 @@ namespace Jarvis{
                 Element(string name, string type);
                 string name(){return name_;}
                 string type(){return type_;}
+                string info();
             protected:
                 string name_;
                 string type_;
@@ -71,6 +72,7 @@ namespace Jarvis{
         public:
             Wire(Pin *pin0, Pin *pin1);
             list<Pin *>& pins(){return pins_;}
+            string info();
             //new pin
             //void linkPin(Pin *pin);
             //void unlinkPin(Pin *pin);

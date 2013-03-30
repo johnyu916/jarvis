@@ -43,7 +43,7 @@ namespace Jarvis{
         if (oneElement != NULL){
             string type = oneElement->type();
             //cout <<"element found type: "<<type<<endl;
-            if (type == "SWITCH"){
+            if (type == "switch"){
                 Switch *swit = (Switch *)oneElement;
                 //get second word
                 string pinName = command.front();
@@ -51,7 +51,7 @@ namespace Jarvis{
                 return swit->pin(pinName);
 
             }
-            else if (type == "POWER"){
+            else if (type == "power"){
                 Power *power = (Power *)oneElement;
                 string pinName = command.front();
                 command.pop_front();

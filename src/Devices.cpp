@@ -1,5 +1,5 @@
 #include <iostream>
-
+#include <sstream>
 #include "Devices.h"
 #include "State.h"
 namespace Jarvis{
@@ -7,7 +7,11 @@ namespace Jarvis{
         Element::Element(string name, string type):name_(name),type_(type){
         }
 
-        Switch::Switch(string name):Element(name,"SWITCH"){
+        string Element::info(){
+            return name_ + " " + type_;
+        }
+
+        Switch::Switch(string name):Element(name,"switch"){
             string pinName = name;
             pinName.append("P0");
             p0_ = new Pin(this,pinName);
@@ -31,7 +35,7 @@ namespace Jarvis{
             else if (inPin == p1_) return p0_;
             else return NULL;
         }
-        Power::Power(string name):Element(name,"POWER"){
+        Power::Power(string name):Element(name,"power"){
             string pinName = name;
             pinName.append("Source");
             source_ = new Pin(this,pinName);
@@ -68,7 +72,7 @@ namespace Jarvis{
             delete pin_;
         }
         /*
-        Ground::Ground(string name):Element(name,"GROUND"){
+        Ground::Ground(string name):Element(name,"ground"){
 
         }
         Ground::~Ground(){
@@ -192,20 +196,20 @@ namespace Jarvis{
 
 
         void elementPrint(Element *element){
-            cout <<"element: "<<element->name()<<" "<<element->type()<<endl;
+            cout <<"element: "<<element->info() <<endl;
             string type = element->type();
             Wire *wire;
-            if (type == "POWER"){
+            if (type == "power"){
                 Power *power = (Power *)element;
                 cout <<"source: ";
-                wire = power->pin("SOURCE")->wire();
-                cout <<wire->name() << " "<<wire->state();
+                wire = power->pin("source")->wire();
+                cout <<"wire: "<<wire->info();
                 cout <<" ground: ";
-                wire = power->pin("GROUND")->wire();
-                cout <<wire->name() << " "<<wire->state();
+                wire = power->pin("ground")->wire();
+                cout <<"wire: "<<wire->info();
                 cout <<endl;
             }
-            else if (type == "SWITCH"){
+            else if (type == "switch"){
                 Switch *switc = (Switch *)element;
                 cout <<"P0: ";
                 cout <<switc->pin("P0")->wire()->name();
@@ -243,6 +247,12 @@ namespace Jarvis{
                 name.append(pin->name());
             }
             return name;
+        }
+        string Wire::info(){
+            ostringstream stream;
+            stream << name() <<" " << state_;
+            return stream.str();
+            
         }
         /*
         void Wire::linkPin(Pin *pin){

@@ -91,7 +91,7 @@ namespace Jarvis{
     }
     int runScript(string fileName){
         Device *device = new Device("jarvis", "canvas");
-        runScript(fileName, device);
+        return runScript(fileName, device);
     }
 
     int runScript(string fileName, Device *device){
@@ -102,7 +102,7 @@ namespace Jarvis{
             while (stream.good()){
                 getline(stream, line);
                 Command command(line, device);
-                cout << line <<endl;
+                //cout << line <<endl;
                 int result = runCommand(command);
                 if (result !=0) return result;
             }
