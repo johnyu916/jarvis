@@ -9,3 +9,5 @@ Importance:
 3. when doing run step, do not turn on or off switch at first. the turning on takes effect at the next step
 
 2. update documentation with correct API
+
+2. forget about current and just do a voltage simulation.

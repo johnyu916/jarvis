@@ -1,0 +1,13 @@
+# logical OR2 gate
+clear
+load power pow
+load switch switchOne
+load switch switchTwo
+load resistor res
+link pow source switchOne p0
+link switchOne p1 res p0
+link res p1 pow ground
+
+label t0 in in0
+label t1 in in1
+label t0 p0 out

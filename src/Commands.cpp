@@ -49,7 +49,6 @@ namespace Jarvis{
                 string pinName = command.front();
                 command.pop_front();
                 return swit->pin(pinName);
-
             }
             else if (type == "power"){
                 Power *power = (Power *)oneElement;
@@ -64,14 +63,21 @@ namespace Jarvis{
 
                 }
                 */
-            else if (type == "METER"){
+            else if (type == "meter"){
                 Meter *meter = (Meter *)oneElement;
                 return meter->pin();
             }
-            else if (type == "INPUT"){
+            else if (type == "resistor"){
+                Resistor *resistor = (Resistor *)oneElement;
+                string pinName = command.front();
+                command.pop_front();
+                return resistor->pin(pinName);
+            }
+            /*
+            else if (type == "input"){
                 Input *input  = (Input *)oneElement;
                 return input->pin();
-            }
+            }*/
             else{
                 cerr << "Unknown element type: "<<type;
                 //hmm this is not possible
@@ -147,24 +153,22 @@ namespace Jarvis{
             if (type == "wire"){
                 cerr << " "<<endl;
                 return 5;
+            }
+            if (type == "input"){
+                element = new Input(name);
             }*/
-            if (type == "switch"){
-                element = new Switch(name);
+            if (type == "meter"){
+                element = new Meter(name);
             }
             else if (type == "power"){
                 //cout <<"in runLoad power"<<endl;
                 element = new Power(name);
             }
-            else if (type == "input"){
-                element = new Input(name);
+            else if (type == "resistor"){
+                element = new Resistor(name);
             }
-            /*
-            else if (type == "ground"){
-                element = new Ground(name);
-            }
-            */
-            else if (type == "meter"){
-                element = new Meter(name);
+            else if (type == "switch"){
+                element = new Switch(name);
             }
             else{
                 //this may be a device. look for it.
@@ -188,6 +192,7 @@ namespace Jarvis{
             return 0;
         }
    }
+   /*
     int runSet(Command command){
        list<string> tokens = command.tokens();
         int size = tokens.size();
@@ -197,7 +202,7 @@ namespace Jarvis{
         tokens.pop_front();
 
         Element *element = command.device()->element(name);
-        if (element == NULL || element->type() != "INPUT") return 24;
+        if (element == NULL || element->type() != "input") return 24;
 
         Input *input = (Input *)element;
 
@@ -211,7 +216,7 @@ namespace Jarvis{
         else return 22;
         return 0;
     }
-
+    */
    int runLink(Command command){
         //needs at least 2 more
        list<string>& tokens = command.tokens();
@@ -269,6 +274,7 @@ namespace Jarvis{
 
         //turn on first
         while (steps > 0){
+            //cout <<"steps left: "<<steps<<endl;
             compute(command.device());
             steps--;
         }

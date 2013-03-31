@@ -1,0 +1,10 @@
+#logical NOT gate
+clear
+load power pow
+load switch s
+load resistor r
+link pow source r p0
+link r p1 s p0
+link s p1 pow ground
+label s in in
+label s p0 out

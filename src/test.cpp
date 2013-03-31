@@ -30,9 +30,16 @@ int runTest(string test){
 
 int main(int argc, char *argv[]){
     //call jarvis and direct output to standard output
-    int status = runTest("and2Test");
+    string testName = "and2Test";
+    if (argc == 2){
+        testName = argv[1];
+    }
+    int status = runTest(testName);
     if (status != 0) {
         cerr << "Test failed with status: "<<status<<endl;
+    }
+    else{
+        cout << "Test successful!" <<endl;
     }
     return 0;
 }

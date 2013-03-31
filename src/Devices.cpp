@@ -29,7 +29,7 @@ namespace Jarvis{
         }
         Pin *Switch::outPin(Pin *inPin){
             //first off, is switch on?
-            if (!state_) return NULL;
+            if (!isOn_) return NULL;
 
             if (inPin == p0_) return p1_;
             else if (inPin == p1_) return p0_;
@@ -52,20 +52,45 @@ namespace Jarvis{
         Power::~Power(){
             delete source_, ground_;
         }
-        Input::Input(string name):Element(name,"INPUT"){
-            state_ = false;
-            pin_ = new Pin(this, "pin");
+        Resistor::Resistor(string name):Element(name,"resistor"){
+            p0_ = new Pin(this, "p0");
+            p1_ = new Pin(this, "p1");
+            isActive_ = false;
+        }
+        Pin *Resistor::pin(string name){
+            if (name == "p0") return p0_;
+            else if (name == "p1") return p1_;
+            else return NULL;
+        }
+        bool Resistor::outVoltage(bool inV){
+            if (!inV) return false;
+            if (isActive_ && inV) return false;
+            else return true;
+        }
+        Pin *Resistor::outPin(Pin *inPin){
+            if (inPin == p0_) return p1_;
+            else if (inPin == p1_) return p0_;
+            else return NULL;
+        }
+
+        /*
+        Input::Input(string name):Element(name,"input"){
+            //state_ = false;
+            power_ = new Power(name+"/Power");
         }
         Input::~Input(){
-            delete pin_;
+            delete power_;
         }
         void Input::state(bool input){
             //if any wire attached, set it to input
-            state_=input;
-        }
-        
+            //state_=input;
+            //unlink both wires
 
-        Meter::Meter(string name):Element(name,"METER"){
+            if (input){
+            }
+        }
+        */
+        Meter::Meter(string name):Element(name,"meter"){
             pin_ = new Pin(this,name);
         }
         Meter::~Meter(){
@@ -203,10 +228,10 @@ namespace Jarvis{
                 Power *power = (Power *)element;
                 cout <<"source: ";
                 wire = power->pin("source")->wire();
-                cout <<"wire: "<<wire->info();
+                if (wire) cout <<" wire: "<<wire->info();
                 cout <<" ground: ";
                 wire = power->pin("ground")->wire();
-                cout <<"wire: "<<wire->info();
+                if (wire) cout <<" wire: "<<wire->info();
                 cout <<endl;
             }
             else if (type == "switch"){
@@ -220,21 +245,22 @@ namespace Jarvis{
                 cout <<endl;
 
             }
-            else if (type == "METER"){
+            else if (type == "meter"){
                 Meter *meter = (Meter *)element;
                 cout <<"state: ";
-                cout <<meter->pin()->wire()->state();
+                cout <<meter->pin()->wire()->voltage();
                 cout <<endl;
             }
-            else if (type == "INPUT"){
-                //nothing
+            /*
+            else if (type == "input"){
                 Input *input = (Input *)element;
                 cout <<"state: ";
                 cout << input->state() <<endl;
             }
+            */
         }
 
-        Wire::Wire(Pin *pin0, Pin *pin1):state_(false),reachable_(false){
+        Wire::Wire(Pin *pin0, Pin *pin1):voltage_(false)/*,reachable_(false)*/{
             pins_.push_back(pin0);
             pins_.push_back(pin1);
         }
@@ -250,7 +276,7 @@ namespace Jarvis{
         }
         string Wire::info(){
             ostringstream stream;
-            stream << name() <<" " << state_;
+            stream << name() <<" " << voltage_;
             return stream.str();
             
         }

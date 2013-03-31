@@ -10,10 +10,9 @@ namespace Jarvis{
         //primitive device types
         enum DEVICE_TYPE{
             POWER = 0,
-            //GROUND,
-            TRANSISTOR,
+            RESISTOR,
+            SWITCH,
             METER,
-            SIGNAL,
         };
         
         class Element{
@@ -78,11 +77,11 @@ namespace Jarvis{
             //void unlinkPin(Pin *pin);
             string name();
             
-            bool state(){ return state_; }
-            void state(bool state){state_=state;}
+            bool voltage(){ return voltage_; }
+            void voltage(bool state){voltage_=state;}
         private:
-            bool state_; //high or low
-            bool reachable_; //is this reachable from plus terminal?
+            bool voltage_; //high or low
+            //bool reachable_; //is this reachable from plus terminal?
             list<Pin *> pins_;
         };
 
@@ -101,19 +100,35 @@ namespace Jarvis{
                 Element *element_;
                 string name_;
         };
-        class Input : public Element{
+        class Resistor : public Element{
+            public:
+                Resistor(string name);
+                Pin *pin(string name);
+                Pin *outPin(Pin *inPin);
+                bool outVoltage(bool inV);
+                bool isActive(){ return isActive_;}
+                void isActive(bool a){ isActive_ = a;}
+            private:
+                Pin *p0_, *p1_;
+                bool isActive_;
+        };
+        //basically a convenience method.
+        //contains power and connects to source or ground depending on 
+        /*
+        class Input{
         public:
             Input(string name);
             ~Input();
             Pin *pin(){return pin_;}
             void state(bool input);
-            bool state(){return state_;}
+            bool state();
+            //bool state(){return state_;}
         private:
-            Pin *pin_;
-            bool state_;
+            Power *power_;
+            //bool state_;
             
         };
-
+        */
         class Meter : public Element{
         public:
             Meter(string name);
@@ -156,11 +171,11 @@ namespace Jarvis{
             //Pin *pin(PIN_NAME name);
             Pin *pin(string name);
             Pin *outPin(Pin *pin);
-            bool state(){return state_;}
-            void state(bool state){state_=state;}
+            bool isOn(){return isOn_;}
+            void isOn(bool isOn){isOn_=isOn;}
         private:
             Pin *p0_, *p1_, *in_;
-            bool state_; 
+            bool isOn_; 
         };
 
         //contains stuff at the current level
