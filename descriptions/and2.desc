@@ -10,4 +10,4 @@ link t1 p1 r0 p0
 link r0 p1 pow ground
 label t0 in in0
 label t1 in in1
-label t0 p0 out
+label t1 p1 out

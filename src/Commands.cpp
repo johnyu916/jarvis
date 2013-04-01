@@ -2,6 +2,7 @@
 #include "Compute.h"
 #include "Parser.h"
 #include "State.h"
+#include "Utilities.h"
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -245,7 +246,11 @@ namespace Jarvis{
     int runUnlink(Command command){
         list<string> tokens = command.tokens();
         int size = tokens.size();
-        if (size <= 1 || size > 2) return 18;
+        if (size <= 1 || size > 2){
+            cerr << "size needs to be 1 or 2, but it is: "<<size<<". list: ";
+            listCerr(tokens);
+            return 19;
+        }
         Pin *pinOne = getPinWithCommand(command);
 
         return unlinkPin(pinOne);     
@@ -253,8 +258,10 @@ namespace Jarvis{
     int runLabel(Command command){
         //must be at lest two
         Pin *pinOne = getPinWithCommand(command);
-        if (pinOne == NULL) return 14;
-
+        if (pinOne == NULL) {
+            cerr <<"runLabel: could not find pin one"<<endl;
+            return 14;
+        }
         list<string>tokens = command.tokens();
 
         string name = tokens.front();
@@ -267,14 +274,17 @@ namespace Jarvis{
     int runRun(Command command){
         //lets run
         list<string>tokens = command.tokens();
-        if (tokens.size() == 0) return 16;
+        if (tokens.size() == 0) {
+            cerr << "runRun: no tokens left"<<endl;
+            return 16;
+        }
         string stepsString = tokens.front();
         int steps=0;
         istringstream(stepsString) >> steps;
 
         //turn on first
         while (steps > 0){
-            //cout <<"steps left: "<<steps<<endl;
+            cout <<"steps left: "<<steps<<endl;
             compute(command.device());
             steps--;
         }

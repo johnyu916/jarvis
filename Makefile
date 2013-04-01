@@ -5,7 +5,7 @@ OBJDIR=obj
 all: jarvis jarvist
 
 #_OBJ = main.o Commands.o Compute.o Devices.o Parser.o State.o
-_OBJ = Commands.o Compute.o Devices.o Parser.o State.o
+_OBJ = Commands.o Compute.o Devices.o Parser.o State.o Utilities.o
 OBJ = $(patsubst %, $(OBJDIR)/%,$(_OBJ))
 
 $(OBJDIR)/%.o : $(SRCDIR)/%.cpp $(SRCDIR)/%.h

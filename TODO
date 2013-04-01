@@ -4,10 +4,7 @@ Importance:
 1 - nice to have
 
 
-1 - Modularize the command line parsing, accepting file as input.
-
-3. when doing run step, do not turn on or off switch at first. the turning on takes effect at the next step
+3. if switch is off, do not keep calculating voltages, because you are done. in the beginning, always mark wires as done.
 
 2. update documentation with correct API
 
-2. forget about current and just do a voltage simulation.

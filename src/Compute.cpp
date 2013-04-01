@@ -51,6 +51,8 @@ namespace Jarvis{
             }
             else if (element->type() == "switch"){
                 Switch *switc = (Switch *)element;
+                if (!switc->isOn()) return;
+
                 Pin *nextPin = switc->outPin(pin);
                 spanMesh(nextPin,resistors);
             }
@@ -62,6 +64,7 @@ namespace Jarvis{
             }
         }
     }
+
     void toggleSwitches(Device *device){
         list<Element *> elements=  device->elements();
         list<Element *>::iterator it;
@@ -131,8 +134,11 @@ namespace Jarvis{
             Element *element = pin->element();
             if (element->type() == "switch"){
                 Switch *switc = (Switch *)element;
+                bool nextVoltage;
+                if (switc->isOn()) nextVoltage = voltage;
+                else nextVoltage = false;
                 Pin *nextPin = switc->outPin(pin);
-                spanVoltage(nextPin, voltage);
+                spanVoltage(nextPin, nextVoltage);
             }
             else if (element->type() == "resistor"){
                 Resistor *resistor = (Resistor *)element;

@@ -28,11 +28,10 @@ namespace Jarvis{
             delete in_;
         }
         Pin *Switch::outPin(Pin *inPin){
-            //first off, is switch on?
-            if (!isOn_) return NULL;
+            //if (!isOn_) return NULL;
 
             if (inPin == p0_) return p1_;
-            else if (inPin == p1_) return p0_;
+            //else if (inPin == p1_) return p0_;
             else return NULL;
         }
         Power::Power(string name):Element(name,"power"){

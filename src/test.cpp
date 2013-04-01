@@ -14,6 +14,7 @@ int runTest(string test){
     string command = bin + " " + testFile + " > " + outFile;
     cout <<"run command: "<<command<<endl;
     int status = system(command.c_str());
+    cout <<"return status: " <<status<<endl;
     if (status == 0){
         command = "diff "+expectFile+ " " + outFile;
         int diffStatus = system(command.c_str());
@@ -24,6 +25,7 @@ int runTest(string test){
         else return 0;
     }
     else{
+        cerr << "jarvis returned error status: "<<status<<endl;
         return status;
     }
 }
