@@ -79,8 +79,11 @@ namespace Jarvis{
             
             bool voltage(){ return voltage_; }
             void voltage(bool state){voltage_=state;}
+            bool visited(){ return visited_;}
+            void visited(bool visited){ visited_=visited;}
         private:
             bool voltage_; //high or low
+            bool visited_; //has been visited
             //bool reachable_; //is this reachable from plus terminal?
             list<Pin *> pins_;
         };
@@ -100,6 +103,8 @@ namespace Jarvis{
                 Element *element_;
                 string name_;
         };
+
+        //an active resistor has current flowing through it
         class Resistor : public Element{
             public:
                 Resistor(string name);
@@ -195,6 +200,7 @@ namespace Jarvis{
         
         Pin* pinWithName(Device* device, string name);
         bool isExistWithName(Device *device, string name);
+        int forEachElement(Device *device, int (*operation)(Element *e));
     }
 }
 

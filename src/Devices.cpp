@@ -362,5 +362,24 @@ namespace Jarvis{
             if (wire->pins().size() == 0) delete wire;
             return 0;
         }
+
+        //run some function over every element in our device tree
+        int forEachElement(Device *device, int (*operation)(Element *element)){
+            list<Element *> elements=  device->elements();
+            list<Element *>::iterator it;
+            for (it = elements.begin(); it != elements.end(); it++){
+                Element *e = (*it);
+                int rVal = operation(e);
+                if (rVal != 0) return rVal;
+            }
+
+            list<Device *>devices = device->devices();
+            list<Device *>::iterator dit;
+            for (dit = devices.begin(); dit != devices.end(); dit++){
+                Device *d = (*dit);
+                int rVal = forEachElement(d, operation);
+                if (rVal != 0) return rVal;
+            }
+        }
     }
 }

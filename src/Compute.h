@@ -5,7 +5,7 @@
 namespace Jarvis{
     using namespace Devices;
     //void reset(Device *device);
-    void compute(Device *device);
+    int compute(Device *device);
 }
 
 #endif
