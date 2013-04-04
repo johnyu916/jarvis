@@ -65,8 +65,8 @@ namespace Jarvis{
             else if (first == "link"){
                 return runLink(command);
             }
-            else if (first == "label"){
-                return runLabel(command);
+            else if (first == "bridge"){
+                return runBridge(command);
             }
             else if (first == "save"){
                 return runSave(command);

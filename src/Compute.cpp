@@ -62,6 +62,11 @@ namespace Jarvis{
                 Pin *nextPin = resistor->outPin(pin);
                 spanResistors(nextPin, resistors);
             }
+            else if (element->type() == "bridge"){
+                Bridge *bridge = (Bridge *)element;
+                Pin *nextPin = bridge->outPin(pin);
+                spanResistors(nextPin, resistors);
+            }
         }
     }
     int toggleSwitch(Element *e){
@@ -79,6 +84,7 @@ namespace Jarvis{
         forEachElement(device,toggleSwitch);
     }
 
+    /*
     void toggleSwitchesTemp(Device *device){
         list<Element *> elements=  device->elements();
         list<Element *>::iterator it;
@@ -99,6 +105,7 @@ namespace Jarvis{
             toggleSwitches(*dit);
         }
     }
+    */
 
     int deactivateResistor(Element *e){
         if (e->type() == "resistor"){
@@ -125,6 +132,7 @@ namespace Jarvis{
         forEachElement(device, completeResistor);
     }
 
+    /*
     void completeResistorsTemp(Device *device){
     //void resetDevice(Device *device){
         list<Element *> elements=  device->elements();
@@ -137,13 +145,11 @@ namespace Jarvis{
                 list<Resistor *>resistors;
                 spanResistors(source,resistors);
             }
-            /*
             else if (e->type() == "input"){
                 Input *input = (Input *)e;
                 Wire *wire = input->pin()->wire();
                 wire->state(input->state());
             }
-            */
         }
 
         list<Device *>devices = device->devices();
@@ -152,6 +158,7 @@ namespace Jarvis{
             updateResistors(*dit);
         }
     }
+    */
 
     void spanResetWires(Pin* source){
         if (source == NULL) return;
@@ -177,6 +184,11 @@ namespace Jarvis{
                 Pin *nextPin = resistor->outPin(pin);
                 spanResetWires(nextPin);
                 
+            }
+            else if (element->type() == "bridge"){
+                Bridge *bridge = (Bridge *)element;
+                Pin *nextPin = bridge->outPin(pin);
+                spanResetWires(nextPin);
             }
         }
     }
@@ -204,7 +216,18 @@ namespace Jarvis{
         for (it = pins.begin(); it != pins.end(); it++){
             Pin *pin = (*it);
             if (pin == source) continue;
+
             Element *element = pin->element();
+            if (element->type() == "power"){
+                Power *power = (Power *)element;
+                if (pin == power->pin("ground")){
+                    bool gv = pin->wire()->voltage();
+                    if (gv){
+                        cerr << "error: voltage at ground is high" <<endl;
+                        return 24;
+                    }
+                }
+            }
             if (element->type() == "switch"){
                 Switch *switc = (Switch *)element;
                 if (!switc->isOn()) return 0;
@@ -219,7 +242,14 @@ namespace Jarvis{
                 return spanVoltage(nextPin, nextVoltage);
                 
             }
+            else if (element->type() == "bridge"){
+                Bridge *bridge = (Bridge *)element;
+                Pin *nextPin = bridge->outPin(pin);
+                return spanVoltage(nextPin, voltage);
+            }
+
         }
+        return 0;
     }
     int resetWires(Element *e){
         if (e->type() == "power"){
@@ -236,6 +266,7 @@ namespace Jarvis{
             Pin *source = power->pin("source");
             return spanVoltage(source,true);
         }
+        return 0;
     }
 
     //TODO: first set all voltages to low
@@ -271,8 +302,10 @@ namespace Jarvis{
     int compute(Device *device){
         updateResistors(device);
 
+        cout <<"updated resistors"<<endl;
         int rVal = updateVoltages(device);
         if (rVal != 0) return rVal;
+        cout <<"updated voltages"<<endl;
 
         toggleSwitches(device);
         return 0;

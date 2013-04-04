@@ -10,6 +10,22 @@ namespace Jarvis{
         string Element::info(){
             return name_ + " " + type_;
         }
+        Bridge::Bridge(string name, Pin *inPin):Element(name,"bridge"){
+            in_ = new Pin(this, "in");
+            out_ = new Pin(this, "out");
+
+            linkPins(inPin, in_);
+        }
+
+        Bridge::~Bridge(){
+            delete in_;
+            delete out_;
+        }
+        Pin *Bridge::outPin(Pin *inPin){
+            if (inPin == in_) return out_;
+            else if (inPin == out_) return in_;
+            else return NULL;
+        }
 
         Switch::Switch(string name):Element(name,"switch"){
             string pinName = name;
@@ -72,6 +88,10 @@ namespace Jarvis{
             else return NULL;
         }
 
+        string Resistor::info(){
+            return "";
+        }
+
         /*
         Input::Input(string name):Element(name,"input"){
             //state_ = false;
@@ -129,18 +149,18 @@ namespace Jarvis{
                 delete element;
             }
 
-            list<PinLabel *>pinLabels = device->pinLabels();
-            list<PinLabel *>::iterator pit;
+            list<Bridge *>pinLabels = device->bridges();
+            list<Bridge *>::iterator pit;
             for (pit = pinLabels.begin(); pit != pinLabels.end(); pit++){
-                PinLabel *label = (*pit);
+                Bridge *label = (*pit);
                 delete label;
 
             }
         }
-        PinLabel* Device::pinLabel(string name){
-            list<PinLabel*>::iterator iter;
-            for (iter = pinLabels_.begin(); iter != pinLabels_.end(); iter++){
-                PinLabel *label = (*iter);
+        Bridge* Device::bridge(string name){
+            list<Bridge*>::iterator iter;
+            for (iter = bridges_.begin(); iter != bridges_.end(); iter++){
+                Bridge *label = (*iter);
                 if (label->name() == name){
                     return label;
                 }
@@ -148,6 +168,18 @@ namespace Jarvis{
             }
             return NULL;
         }
+        /*
+        Bridge* Device::pinLabel(string name){
+            list<Bridge*>::iterator iter;
+            for (iter = pinLabels_.begin(); iter != pinLabels_.end(); iter++){
+                Bridge *label = (*iter);
+                if (label->name() == name){
+                    return label;
+                }
+                
+            }
+            return NULL;
+        }*/
 
         Element* Device::element(string name){
             list<Element *>::iterator eiter;
@@ -170,7 +202,9 @@ namespace Jarvis{
             if (device) return true;
             Element *element = canvas->element(name);
             if (element) return true;
-            PinLabel *label = canvas->pinLabel(name);
+            
+            Bridge *label = canvas->bridge(name);
+            //Bridge *label = canvas->pinLabel(name);
             if (label) return true;
             return false;
         }
@@ -189,13 +223,17 @@ namespace Jarvis{
 
         void printNameTypeLabels(Device *device){
             cout <<device->name()<<" "<< device->type() <<endl;
-            list<PinLabel *> labels= device->pinLabels();
-            list<PinLabel *>::iterator liter;
+            list<Bridge *> labels= device->bridges();
+            list<Bridge *>::iterator liter;
             for (liter = labels.begin(); liter != labels.end(); liter++){
-                PinLabel *label = (*liter);
+                Bridge *label = (*liter);
                 cout << label->name();
                 cout <<" ";
-                cout << label->pin()->wire()->name() <<endl;
+                cout << label->in()->wire()->name() <<endl;
+                Wire *outWire = label->out()->wire();
+                if (outWire){
+                    cout <<outWire->name() <<endl;
+                }
             }
 
         }
@@ -250,6 +288,7 @@ namespace Jarvis{
                 cout <<meter->pin()->wire()->voltage();
                 cout <<endl;
             }
+            
             /*
             else if (type == "input"){
                 Input *input = (Input *)element;
@@ -316,11 +355,6 @@ namespace Jarvis{
         Pin::~Pin(){
             //wire_->deletePin(this);            
         }
-        PinLabel::PinLabel(string name, Pin *pin):name_(name),pin_(pin){
-        }
-        PinLabel::~PinLabel(){
-            pin_ = NULL;
-        }
 
         //pre: pins must exist
         //link pin0 and pin1.
@@ -331,7 +365,7 @@ namespace Jarvis{
             //cout <<"0"<<endl;
 
             if (wire1 && wire0) {
-                cerr <<"Both pins already connected to some wire"<<endl;
+                cerr <<"Both pins already connected to some wire. wire1: "<<wire0->info() << " wire2: "<<wire1->info()<<endl;
                 return 14;
             }
             else if (wire0 && !wire1){
@@ -380,6 +414,7 @@ namespace Jarvis{
                 int rVal = forEachElement(d, operation);
                 if (rVal != 0) return rVal;
             }
+            return 0;
         }
     }
 }

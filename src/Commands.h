@@ -32,6 +32,7 @@ namespace Jarvis{
     }; */
     int runLoad(Command cmd);
     int runLink(Command command);
+    int runBridge(Command command);
     int runUnlink(Command command);
     int runLabel(Command command);
     int runRun(Command command);

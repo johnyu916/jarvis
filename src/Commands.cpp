@@ -95,23 +95,25 @@ namespace Jarvis{
             }
             //do we need to get the pin?
             string type = oneDevice->type();
-            int size = oneDevice->pinLabels().size();
+            //int size = oneDevice->pinLabels().size();
+            int size = oneDevice->bridges().size();
             if (size == 0){
                 cerr <<"Device with name: "<<nameOne<< " has no pinLabels"<<endl;
                 return NULL;
             }
             else if (size == 1){
-                return oneDevice->pinLabels().front()->pin();
+                return oneDevice->bridges().front()->out();
             }
             else{
                 string pinName = command.front();
                 command.pop_front();
-                PinLabel *pinLabel = oneDevice->pinLabel(pinName);
-                if (pinLabel == NULL){
-                    cerr<< "No pinLabel found for pin name: "<<pinName<<endl;
+                Bridge *bridge = oneDevice->bridge(pinName);
+                //PinLabel *pinLabel = oneDevice->pinLabel(pinName);
+                if (bridge == NULL){
+                    cerr<< "No pinLabel found for pin name: "<<bridge<<endl;
                     return NULL;
                 }
-                return pinLabel->pin();
+                return bridge->out();
             }
         }
     }
@@ -255,6 +257,25 @@ namespace Jarvis{
 
         return unlinkPin(pinOne);     
     }
+    int runBridge(Command command){
+        Pin *pinOne = getPinWithCommand(command);
+        if (pinOne == NULL) {
+            cerr <<"runLabel: could not find pin one"<<endl;
+            return 14;
+        }
+        list<string>tokens = command.tokens();
+
+        string name = tokens.front();
+        tokens.pop_front();
+        Device *device = command.device();
+        Bridge *bridge = new Bridge(name, pinOne);
+        device->bridges().push_back(bridge);
+        //PinLabel* label = new PinLabel(name,pinOne);
+        //device->pinLabels().push_back(label);
+        return 0;
+        
+    }
+    /*
     int runLabel(Command command){
         //must be at lest two
         Pin *pinOne = getPinWithCommand(command);
@@ -270,7 +291,7 @@ namespace Jarvis{
         PinLabel* label = new PinLabel(name,pinOne);
         device->pinLabels().push_back(label);
         return 0;
-    }
+    }*/
     int runRun(Command command){
         //lets run
         list<string>tokens = command.tokens();
@@ -285,7 +306,8 @@ namespace Jarvis{
         //turn on first
         while (steps > 0){
             cout <<"steps left: "<<steps<<endl;
-            compute(command.device());
+            int rVal = compute(command.device());
+            if (rVal != 0) return rVal;
             steps--;
         }
         

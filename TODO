@@ -7,4 +7,5 @@ Importance:
 3. if switch is off, do not keep calculating voltages, because you are done. in the beginning, always mark wires as done.
 
 2. update documentation with correct API
-3. everything flows from plus to minus. user must ensure that they are wired properly. rename terminals to plus, minus. change outPin to always take plus and output minus. so no parameters needed at all. and wire should also propogate current only from negative to positive
+
+3. construct input device as power-resistor-ground

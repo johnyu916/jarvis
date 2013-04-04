@@ -11,6 +11,7 @@ namespace Jarvis{
         enum DEVICE_TYPE{
             POWER = 0,
             RESISTOR,
+            BRIDGE,
             SWITCH,
             METER,
         };
@@ -20,12 +21,13 @@ namespace Jarvis{
                 Element(string name, string type);
                 string name(){return name_;}
                 string type(){return type_;}
-                string info();
+                virtual string info();
             protected:
                 string name_;
                 string type_;
         };
 
+        /*
         class Pin;
 
         class PinLabel{
@@ -38,7 +40,10 @@ namespace Jarvis{
                 string name_;
                 Pin *pin_;
         };
+        */
 
+        class Bridge;
+        class Pin;
         //a device can have devices and basic components inside
         class Device {
             public:
@@ -49,8 +54,11 @@ namespace Jarvis{
                 Device* device(string name);
                 list<Element *>& elements(){return elements_;}
                 Element* element(string name);
-                list<PinLabel *>& pinLabels(){return pinLabels_;}
-                PinLabel* pinLabel(string name);
+                list<Bridge *>& bridges(){
+                    return bridges_;}
+                Bridge *bridge(string name);
+                //list<PinLabel *>& pinLabels(){return pinLabels_;}
+                //PinLabel* pinLabel(string name);
                 string name(){return name_;}
                 string type(){return type_;}
             private:
@@ -58,7 +66,8 @@ namespace Jarvis{
                 string type_;
                 list<Device *>devices_;
                 list<Element *>elements_;
-                list<PinLabel *>pinLabels_;
+                list<Bridge *>bridges_;
+                //list<PinLabel *>pinLabels_;
         };
 
         //wire always has at least two devices connected to it. some conditions:
@@ -113,6 +122,7 @@ namespace Jarvis{
                 bool outVoltage(bool inV);
                 bool isActive(){ return isActive_;}
                 void isActive(bool a){ isActive_ = a;}
+                string info();
             private:
                 Pin *p0_, *p1_;
                 bool isActive_;
@@ -162,6 +172,17 @@ namespace Jarvis{
             Pin *pin_;
         };
         */
+        
+        class Bridge : public Element{
+        public:
+            Bridge(string name, Pin *pin);
+            ~Bridge();
+            Pin *in(){ return in_; }
+            Pin *out(){ return out_; }
+            Pin *outPin(Pin *inPin);
+        private:
+            Pin *in_, *out_;
+        };
 
         class Switch : public Element{
             //transistor has 3 wires.
