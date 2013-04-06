@@ -9,6 +9,6 @@ link pow source switchTwo p0
 link switchOne p1 res p0
 link switchTwo p1 res p0
 link res p1 pow ground
-label switchOne in in0
-label switchTwo in in1
-label switchTwo p1 out
+bridge switchOne in in0
+bridge switchTwo in in1
+bridge switchTwo p1 out

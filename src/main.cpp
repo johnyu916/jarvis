@@ -48,7 +48,6 @@ int main(int argc, char *argv[]){
     }
     //some component
     //construct something.
-    //Wire *wire = new Wire();
     
     return 0;
 }

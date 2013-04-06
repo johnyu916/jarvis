@@ -25,6 +25,7 @@ namespace Jarvis{
             protected:
                 string name_;
                 string type_;
+
         };
 
         /*
@@ -119,7 +120,7 @@ namespace Jarvis{
                 Resistor(string name);
                 Pin *pin(string name);
                 Pin *outPin(Pin *inPin);
-                bool outVoltage(bool inV);
+                //bool outVoltage(bool inV);
                 bool isActive(){ return isActive_;}
                 void isActive(bool a){ isActive_ = a;}
                 string info();
@@ -149,6 +150,7 @@ namespace Jarvis{
             Meter(string name);
             ~Meter();
             Pin *pin(){return pin_;}
+            string info();
         private:
             Pin *pin_;
             
@@ -158,6 +160,7 @@ namespace Jarvis{
             Power(string name);
             ~Power();
             Pin *pin(string type);
+            string info();
         private:
             Pin *source_, *ground_;
         };
@@ -199,6 +202,7 @@ namespace Jarvis{
             Pin *outPin(Pin *pin);
             bool isOn(){return isOn_;}
             void isOn(bool isOn){isOn_=isOn;}
+            string info();
         private:
             Pin *p0_, *p1_, *in_;
             bool isOn_; 

@@ -198,6 +198,7 @@ namespace Jarvis{
 
         Wire *wire = source->wire();
         if (!wire) {
+            return 0; //have separate audit if you want to check connectivity
             cerr << "source has no wire. source: " << source->name() <<endl;
             return 20;
         };
@@ -209,12 +210,14 @@ namespace Jarvis{
             }
             return 0;
         }
-        //cout <<"spanVoltage wire: "<< wire->info()<<endl;
+        cout <<"spanVoltage setting wire: "<< wire->info()<< " to voltage: "<<voltage<<endl;
         wire->voltage(voltage);
+        wire->visited(true);
         list<Pin *>pins = wire->pins();
         list<Pin *>::iterator it;
         for (it = pins.begin(); it != pins.end(); it++){
             Pin *pin = (*it);
+            //cout <<"spanvoltage pin name: "<<pin->name()<<endl;
             if (pin == source) continue;
 
             Element *element = pin->element();
@@ -223,40 +226,44 @@ namespace Jarvis{
                 if (pin == power->pin("ground")){
                     bool gv = pin->wire()->voltage();
                     if (gv){
-                        cerr << "error: voltage at ground is high" <<endl;
+                        cerr << "error: voltage at ground is high. " << pin->wire()->info()<<endl;
                         return 24;
                     }
                 }
             }
             if (element->type() == "switch"){
                 Switch *switc = (Switch *)element;
-                if (!switc->isOn()) return 0;
+                if (!switc->isOn()) continue;
                 Pin *nextPin = switc->outPin(pin);
-                return spanVoltage(nextPin, voltage);
+                int rVal = spanVoltage(nextPin, voltage);
+                if (rVal != 0) return rVal;
             }
             else if (element->type() == "resistor"){
                 Resistor *resistor = (Resistor *)element;
                 Pin *nextPin = resistor->outPin(pin);
                 bool nextVoltage = voltage;
                 if (resistor->isActive()) nextVoltage = false;
-                return spanVoltage(nextPin, nextVoltage);
+                int rVal = spanVoltage(nextPin, nextVoltage);
+                if (rVal != 0) return rVal;
                 
             }
             else if (element->type() == "bridge"){
                 Bridge *bridge = (Bridge *)element;
                 Pin *nextPin = bridge->outPin(pin);
-                return spanVoltage(nextPin, voltage);
+                int rVal = spanVoltage(nextPin, voltage);
+                if (rVal != 0) return rVal;
             }
 
         }
         return 0;
     }
     int resetWires(Element *e){
+        /*
         if (e->type() == "power"){
             Power *power = (Power *)e;
             Pin *source = power->pin("source");
             spanResetWires(source);
-        }
+        }*/
         return 0;
     }
 

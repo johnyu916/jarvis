@@ -16,3 +16,7 @@ unlink i1 low
 link i1 high gate in1
 run 3
 show m0
+unlink i0 high
+link i0 low gate in0
+run 3
+show m0

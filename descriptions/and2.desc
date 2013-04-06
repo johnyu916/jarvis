@@ -8,6 +8,6 @@ link pow source t0 p0
 link t0 p1 t1 p0
 link t1 p1 r0 p0
 link r0 p1 pow ground
-label t0 in in0
-label t1 in in1
-label t1 p1 out
+bridge t0 in in0
+bridge t1 in in1
+bridge t1 p1 out

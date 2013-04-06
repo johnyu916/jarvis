@@ -1,5 +1,4 @@
 #logical NOT gate
-clear
 load power pow
 load switch s
 load resistor r
@@ -8,3 +7,4 @@ link r p1 s p0
 link s p1 pow ground
 bridge s in in
 bridge s p0 out
+#show
