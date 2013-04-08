@@ -96,7 +96,9 @@ namespace Jarvis{
             //do we need to get the pin?
             string type = oneDevice->type();
             //int size = oneDevice->pinLabels().size();
-            int size = oneDevice->bridges().size();
+            //int size = oneDevice->bridges().size();
+
+            /*
             if (size == 0){
                 cerr <<"Device with name: "<<nameOne<< " has no pinLabels"<<endl;
                 return NULL;
@@ -105,16 +107,22 @@ namespace Jarvis{
                 return oneDevice->bridges().front()->out();
             }
             else{
+                */
                 string pinName = command.front();
                 command.pop_front();
-                Bridge *bridge = oneDevice->bridge(pinName);
+                //Bridge *bridge = oneDevice->bridge(pinName);
+                Element *bridgeE = oneDevice->element(pinName);
+                if (bridgeE == NULL){
+                    cerr << "No such element found" << pinName <<endl;
+                }
                 //PinLabel *pinLabel = oneDevice->pinLabel(pinName);
+                Bridge *bridge = (Bridge *)bridgeE;
                 if (bridge == NULL){
-                    cerr<< "No pinLabel found for pin name: "<<bridge<<endl;
+                    cerr<< "No bridge found for pin name: "<<pinName<<endl;
                     return NULL;
                 }
                 return bridge->out();
-            }
+            //}
         }
     }
 
@@ -269,7 +277,8 @@ namespace Jarvis{
         tokens.pop_front();
         Device *device = command.device();
         Bridge *bridge = new Bridge(name, pinOne);
-        device->bridges().push_back(bridge);
+        device->elements().push_back(bridge);
+        //device->bridges().push_back(bridge);
         //PinLabel* label = new PinLabel(name,pinOne);
         //device->pinLabels().push_back(label);
         return 0;

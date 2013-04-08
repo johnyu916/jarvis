@@ -4,7 +4,7 @@
 #include "State.h"
 namespace Jarvis{
     namespace Devices{
-        Element::Element(string name, string type):name_(name),type_(type){
+        Element::Element(string name, string type):name_(name),type_(type),visited_(false){
         }
 
         string Element::info(){
@@ -27,6 +27,17 @@ namespace Jarvis{
             if (inPin == in_) return out_;
             else if (inPin == out_) return in_;
             else return NULL;
+        }
+        string Bridge::info(){
+            ostringstream sout;
+            sout <<"Bridge: "<< name_;
+            sout <<" ";
+            sout <<"In Wire: "<< in_->wire()->info() <<endl;
+            Wire *outWire = out_->wire();
+            if (outWire){
+                sout <<"Out Wire: "<<outWire->info() <<endl;
+            }
+            return sout.str();
         }
 
         Switch::Switch(string name):Element(name,"switch"){
@@ -52,6 +63,33 @@ namespace Jarvis{
             else if (inPin == p1_) return p0_;
             else return NULL;
         }
+        Ground::Ground(string name):Element(name,"ground"){
+            pin_ = new Pin(this, name);
+        }
+        Ground::~Ground(){
+            delete pin_;
+        }
+        string Ground::info(){
+            ostringstream sout;
+            sout <<"type: Ground: ";
+            Wire *wire = pin_->wire();
+            if (wire) sout <<" wire: "<<wire->info()<<endl;
+            return sout.str();
+        }
+        Source::Source(string name):Element(name,"source"){
+            pin_ = new Pin(this, name);
+        }
+        Source::~Source(){
+            delete pin_;
+        }
+        string Source::info(){
+            ostringstream sout;
+            sout <<"type: Source: ";
+            Wire *wire = pin_->wire();
+            if (wire) sout <<" wire: "<<wire->info()<<endl;
+            return sout.str();
+        }
+        /*
         Power::Power(string name):Element(name,"power"){
             string pinName = name;
             pinName.append("/Source");
@@ -81,6 +119,7 @@ namespace Jarvis{
         Power::~Power(){
             delete source_, ground_;
         }
+        */
         Resistor::Resistor(string name):Element(name,"resistor"){
             string pinName = name + "/p0";
             p0_ = new Pin(this, pinName);
@@ -141,14 +180,8 @@ namespace Jarvis{
             sout <<pin_->wire()->voltage();
             return sout.str();
         }
-        /*
-        Ground::Ground(string name):Element(name,"ground"){
-
-        }
-        Ground::~Ground(){
-            delete pin_;
-        }
-        */
+        
+       
         Device::Device():name_("UNNAMED"),type_("UNTYPED"){
 
         }
@@ -175,14 +208,16 @@ namespace Jarvis{
                 delete element;
             }
 
+            /*
             list<Bridge *>pinLabels = device->bridges();
             list<Bridge *>::iterator pit;
             for (pit = pinLabels.begin(); pit != pinLabels.end(); pit++){
                 Bridge *label = (*pit);
                 delete label;
 
-            }
+            }*/
         }
+        /*
         Bridge* Device::bridge(string name){
             list<Bridge*>::iterator iter;
             for (iter = bridges_.begin(); iter != bridges_.end(); iter++){
@@ -193,7 +228,7 @@ namespace Jarvis{
                 
             }
             return NULL;
-        }
+        }*/
         /*
         Bridge* Device::pinLabel(string name){
             list<Bridge*>::iterator iter;
@@ -229,9 +264,9 @@ namespace Jarvis{
             Element *element = canvas->element(name);
             if (element) return true;
             
-            Bridge *label = canvas->bridge(name);
+            //Bridge *label = canvas->bridge(name);
             //Bridge *label = canvas->pinLabel(name);
-            if (label) return true;
+            //if (label) return true;
             return false;
         }
         //this is recursive search
@@ -249,18 +284,19 @@ namespace Jarvis{
 
         void printNameTypeLabels(Device *device){
             cout <<"Device: "<<device->name()<<" "<< device->type() <<endl;
+            /*
             list<Bridge *> labels= device->bridges();
             list<Bridge *>::iterator liter;
             for (liter = labels.begin(); liter != labels.end(); liter++){
                 Bridge *label = (*liter);
                 cout <<"Bridge: "<< label->name();
                 cout <<" ";
-                cout <<"In Wire: "<< label->in()->wire()->name() <<endl;
+                cout <<"In Wire: "<< label->in()->wire()->info() <<endl;
                 Wire *outWire = label->out()->wire();
                 if (outWire){
-                    cout <<"Out Wire: "<<outWire->name() <<endl;
+                    cout <<"Out Wire: "<<outWire->info() <<endl;
                 }
-            }
+            }*/
 
         }
 
@@ -385,7 +421,9 @@ namespace Jarvis{
         //link pin0 and pin1.
         //if pin0 and pin1 are both attached to some wire, then return (you should disconnect at least one pin from its wire first with call to unlink)
         int linkPins(Pin *pin0, Pin* pin1){
+            //cout <<"-0.2"<<endl;
             Wire *wire0 = pin0->wire();
+            //cout <<"-0.1"<<endl;
             Wire *wire1 = pin1->wire();
             //cout <<"0"<<endl;
 

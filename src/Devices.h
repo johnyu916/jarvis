@@ -22,10 +22,12 @@ namespace Jarvis{
                 string name(){return name_;}
                 string type(){return type_;}
                 virtual string info();
+                bool visited(){ return visited_;}
+                void visited(bool visited){ visited_=visited;}
             protected:
                 string name_;
                 string type_;
-
+                bool visited_;
         };
 
         /*
@@ -55,9 +57,8 @@ namespace Jarvis{
                 Device* device(string name);
                 list<Element *>& elements(){return elements_;}
                 Element* element(string name);
-                list<Bridge *>& bridges(){
-                    return bridges_;}
-                Bridge *bridge(string name);
+                //list<Bridge *>& bridges(){  return bridges_;}
+                //Bridge *bridge(string name);
                 //list<PinLabel *>& pinLabels(){return pinLabels_;}
                 //PinLabel* pinLabel(string name);
                 string name(){return name_;}
@@ -67,7 +68,7 @@ namespace Jarvis{
                 string type_;
                 list<Device *>devices_;
                 list<Element *>elements_;
-                list<Bridge *>bridges_;
+                //list<Bridge *>bridges_;
                 //list<PinLabel *>pinLabels_;
         };
 
@@ -89,11 +90,9 @@ namespace Jarvis{
             
             bool voltage(){ return voltage_; }
             void voltage(bool state){voltage_=state;}
-            bool visited(){ return visited_;}
-            void visited(bool visited){ visited_=visited;}
         private:
             bool voltage_; //high or low
-            bool visited_; //has been visited
+           // bool visited_; //has been visited
             //bool reachable_; //is this reachable from plus terminal?
             list<Pin *> pins_;
         };
@@ -110,6 +109,7 @@ namespace Jarvis{
                 }
             private:
                 Wire *wire_;
+
                 Element *element_;
                 string name_;
         };
@@ -155,6 +155,15 @@ namespace Jarvis{
             Pin *pin_;
             
         };
+        class Source :public Element{
+        public:
+            Source(string name);
+            ~Source();
+            Pin *pin(){return pin_;}
+        private:
+            Pin *pin_;
+        };
+        /*
         class Power : public Element{
         public:
             Power(string name);
@@ -164,8 +173,8 @@ namespace Jarvis{
         private:
             Pin *source_, *ground_;
         };
+        */
 
-        /*
         class Ground : public Element{
         public:
             Ground(string name);
@@ -174,7 +183,6 @@ namespace Jarvis{
         private:
             Pin *pin_;
         };
-        */
         
         class Bridge : public Element{
         public:
@@ -183,6 +191,8 @@ namespace Jarvis{
             Pin *in(){ return in_; }
             Pin *out(){ return out_; }
             Pin *outPin(Pin *inPin);
+            string info();
+
         private:
             Pin *in_, *out_;
         };

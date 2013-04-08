@@ -8,6 +8,7 @@ namespace Jarvis{
         for (rit = resistors.begin(); rit != resistors.end(); rit++){
             Resistor *resistor = (*rit);
             resistor->isActive(true);
+            cout <<"activated resistor: "<<resistor->info()<<endl;
         }
     }
 
@@ -39,6 +40,8 @@ namespace Jarvis{
             if (pin == source) continue;
             //get element for power
             Element *element = pin->element();
+            if (element->visited()) continue;
+            element->visited(true);
             if (element->type() == "power"){
                 Power *power = (Power *)element;
                 if (pin == power->pin("ground")){
@@ -47,6 +50,9 @@ namespace Jarvis{
                     activateResistors(resistors);
                     //upWires(wires);
                     return;
+                }
+                else {
+                    cerr << "Encountered power source while completing circuit."<<endl;
                 }
             }
             else if (element->type() == "switch"){
@@ -84,34 +90,13 @@ namespace Jarvis{
         forEachElement(device,toggleSwitch);
     }
 
-    /*
-    void toggleSwitchesTemp(Device *device){
-        list<Element *> elements=  device->elements();
-        list<Element *>::iterator it;
-        for (it = elements.begin(); it != elements.end(); it++){
-            Element *e = (*it);
-            if (e->type() == "switch"){
-                Switch *switc = (Switch *)e;
-                bool input = switc->pin("in")->wire()->voltage();
-                if (input) switc->isOn(true);
-                else switc->isOn(false);
-                //cout <<"toggle switch input: "<<input<<" switch isOn: "<<switc->isOn()<<endl;
-            }
-        }
-
-        list<Device *>devices = device->devices();
-        list<Device *>::iterator dit;
-        for (dit = devices.begin(); dit != devices.end(); dit++){
-            toggleSwitches(*dit);
-        }
-    }
-    */
-
-    int deactivateResistor(Element *e){
+    int deactivateResistorAndResetVisited(Element *e){
+    //int deactivateResistor(Element *e){
         if (e->type() == "resistor"){
             Resistor *r = (Resistor *)e;
             r->isActive(false);
         }
+        e->visited(false);
         return 0;
     }
 
@@ -119,6 +104,7 @@ namespace Jarvis{
         if (e->type() == "power"){
             Power *power = (Power *)e;
             Pin *source = power->pin("source");
+            power->visited(true);
             list<Resistor *>resistors;
             spanResistors(source,resistors);
         }
@@ -128,37 +114,9 @@ namespace Jarvis{
     // 1. reset resistors to inactive
     
     void updateResistors(Device *device){
-        forEachElement(device, deactivateResistor);
+        forEachElement(device, deactivateResistorAndResetVisited);
         forEachElement(device, completeResistor);
     }
-
-    /*
-    void completeResistorsTemp(Device *device){
-    //void resetDevice(Device *device){
-        list<Element *> elements=  device->elements();
-        list<Element *>::iterator it;
-        for (it = elements.begin(); it != elements.end(); it++){
-            Element *e = (*it);
-            if (e->type() == "power"){
-                Power *power = (Power *)e;
-                Pin *source = power->pin("source");
-                list<Resistor *>resistors;
-                spanResistors(source,resistors);
-            }
-            else if (e->type() == "input"){
-                Input *input = (Input *)e;
-                Wire *wire = input->pin()->wire();
-                wire->state(input->state());
-            }
-        }
-
-        list<Device *>devices = device->devices();
-        list<Device *>::iterator dit;
-        for (dit = devices.begin(); dit != devices.end(); dit++){
-            updateResistors(*dit);
-        }
-    }
-    */
 
     void spanResetWires(Pin* source){
         if (source == NULL) return;
@@ -167,13 +125,14 @@ namespace Jarvis{
         if (!wire) return;
         //cout <<"spanResetWires wire: "<< wire->info()<<endl;
         wire->voltage(false);
-        wire->visited(false);
         list<Pin *>pins = wire->pins();
         list<Pin *>::iterator it;
         for (it = pins.begin(); it != pins.end(); it++){
             Pin *pin = (*it);
             if (pin == source) continue;
             Element *element = pin->element();
+            if (element->visited()) continue;
+            element->visited(true);
             if (element->type() == "switch"){
                 Switch *switc = (Switch *)element;
                 Pin *nextPin = switc->outPin(pin);
@@ -201,7 +160,8 @@ namespace Jarvis{
             return 0; //have separate audit if you want to check connectivity
             cerr << "source has no wire. source: " << source->name() <<endl;
             return 20;
-        };
+        }
+        /*
         if (wire->visited()){
             bool wireVoltage = wire->voltage();
             if (wireVoltage != voltage){
@@ -209,10 +169,9 @@ namespace Jarvis{
                 return 21;
             }
             return 0;
-        }
-        cout <<"spanVoltage setting wire: "<< wire->info()<< " to voltage: "<<voltage<<endl;
+        }*/
+        //cout <<"spanVoltage setting wire: "<< wire->info()<< " to voltage: "<<voltage<<endl;
         wire->voltage(voltage);
-        wire->visited(true);
         list<Pin *>pins = wire->pins();
         list<Pin *>::iterator it;
         for (it = pins.begin(); it != pins.end(); it++){
@@ -221,6 +180,8 @@ namespace Jarvis{
             if (pin == source) continue;
 
             Element *element = pin->element();
+            if (element->visited()) continue;
+            element->visited(true);
             if (element->type() == "power"){
                 Power *power = (Power *)element;
                 if (pin == power->pin("ground")){
@@ -257,19 +218,24 @@ namespace Jarvis{
         }
         return 0;
     }
+    int resetVisited(Element *e){
+        e->visited(false);
+        return 0;
+    }
     int resetWires(Element *e){
-        /*
         if (e->type() == "power"){
             Power *power = (Power *)e;
+            power->visited(true);
             Pin *source = power->pin("source");
             spanResetWires(source);
-        }*/
+        }
         return 0;
     }
 
     int completeVoltage(Element *e){
         if (e->type() == "power"){
             Power *power = (Power *)e;
+            power->visited(true);
             Pin *source = power->pin("source");
             return spanVoltage(source,true);
         }
@@ -278,32 +244,13 @@ namespace Jarvis{
 
     //TODO: first set all voltages to low
     int updateVoltages(Device *device){
-        int r = forEachElement(device,resetWires);
-        if (r != 0) return r;
+        forEachElement(device,resetVisited);
+        forEachElement(device,resetWires);
+        forEachElement(device,resetVisited);
+
         return forEachElement(device,completeVoltage);
     }
 
-    /*
-    void updateVoltagesTemp(Device *device){
-        list<Element *> elements=  device->elements();
-        list<Element *>::iterator it;
-        for (it = elements.begin(); it != elements.end(); it++){
-            Element *e = (*it);
-            if (e->type() == "power"){
-                Power *power = (Power *)e;
-                Pin *source = power->pin("source");
-                spanVoltage(source,true);
-            }
-        }
-
-        list<Device *>devices = device->devices();
-        list<Device *>::iterator dit;
-        for (dit = devices.begin(); dit != devices.end(); dit++){
-            updateVoltages(*dit);
-        }
-    
-    }
-    */
 
         //switch on/off happens separately
     int compute(Device *device){
@@ -317,25 +264,4 @@ namespace Jarvis{
         toggleSwitches(device);
         return 0;
     }
-    /*
-    void compute(Device *device){
-        //examine all switches. alter state. then call power device
-
-        list<Element *> elements=  device->elements();
-        list<Elementi *>::iterator it;
-        for (it = elements.begin(); it != elements.end(); it++){
-            Element *element = (*it);
-            if (element->type() == "switch"){
-                Switch *swi = (Switch *)element;
-                
-            }
-        }
-
-        list<Device *>devices = device->devices();
-        list<Device *>::iterator it;
-        for (it = devices.begin(); it != devices.end(); it++){
-            
-        }
-        
-    }*/
 }
