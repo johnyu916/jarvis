@@ -4,13 +4,20 @@
 #include "State.h"
 namespace Jarvis{
     namespace Devices{
-        Element::Element(string name, string type):name_(name),type_(type),visited_(false){
+        Element::Element(string name, string type, Device *parent):name_(name),type_(type),visited_(false),parent_(parent){
         }
 
         string Element::info(){
-            return name_ + " " + type_;
+            //recursively get the name
+            Device *parent = parent_;
+            string name = name_;
+            while (parent != NULL){
+                name = parent->name() + name;
+                parent = parent->parent();
+            }
+            return name + " " + type_;
         }
-        Bridge::Bridge(string name, Pin *inPin):Element(name,"bridge"){
+        Bridge::Bridge(string name, Pin *inPin, Device *parent):Element(name,"bridge", parent){
             string pinName = name + "/in";
             in_ = new Pin(this, pinName);
             pinName = name + "/out";
@@ -40,7 +47,7 @@ namespace Jarvis{
             return sout.str();
         }
 
-        Switch::Switch(string name):Element(name,"switch"){
+        Switch::Switch(string name, Device *parent):Element(name,"switch",parent){
             string pinName = name;
             pinName.append("/P0");
             p0_ = new Pin(this,pinName);
@@ -63,7 +70,7 @@ namespace Jarvis{
             else if (inPin == p1_) return p0_;
             else return NULL;
         }
-        Ground::Ground(string name):Element(name,"ground"){
+        Ground::Ground(string name,Device *parent):Element(name,"ground",parent){
             pin_ = new Pin(this, name);
         }
         Ground::~Ground(){
@@ -76,7 +83,7 @@ namespace Jarvis{
             if (wire) sout <<" wire: "<<wire->info()<<endl;
             return sout.str();
         }
-        Source::Source(string name):Element(name,"source"){
+        Source::Source(string name, Device *parent):Element(name,"source", parent){
             pin_ = new Pin(this, name);
         }
         Source::~Source(){
@@ -120,7 +127,7 @@ namespace Jarvis{
             delete source_, ground_;
         }
         */
-        Resistor::Resistor(string name):Element(name,"resistor"){
+        Resistor::Resistor(string name, Device *parent):Element(name,"resistor", parent){
             string pinName = name + "/p0";
             p0_ = new Pin(this, pinName);
             pinName = name + "/p1";
@@ -146,7 +153,8 @@ namespace Jarvis{
 
         string Resistor::info(){
             ostringstream sout;
-            sout << "type: resistor. p0 wire: " << p0_->wire()->info()<<endl;
+            sout << Element::info()<<endl;
+            sout << "p0 wire: " << p0_->wire()->info()<<endl;
             sout << "p1 wire: " << p1_->wire()->info()<<endl;
             return sout.str();
         }
@@ -168,7 +176,7 @@ namespace Jarvis{
             }
         }
         */
-        Meter::Meter(string name):Element(name,"meter"){
+        Meter::Meter(string name, Device *parent):Element(name,"meter",parent){
             pin_ = new Pin(this,name);
         }
         Meter::~Meter(){
@@ -182,10 +190,10 @@ namespace Jarvis{
         }
         
        
-        Device::Device():name_("UNNAMED"),type_("UNTYPED"){
+        Device::Device():name_("UNNAMED"),type_("UNTYPED"), parent_(NULL){
 
         }
-        Device::Device(string name, string type):name_(name),type_(type){
+        Device::Device(string name, string type, Device *parent):name_(name),type_(type), parent_(parent){
 
         }
         Device::~Device(){
@@ -322,28 +330,6 @@ namespace Jarvis{
         void elementPrint(Element *element){
             cout <<"element: "<<element->info() <<endl;
             string type = element->type();
-            Wire *wire;
-            if (type == "power"){
-                
-            }
-            else if (type == "switch"){
-
-            }
-            else if (type == "meter"){
-            }
-            else if (type == "resistor"){
-             //   Resistor *resistor = (Resistor *)element;
-              //  cout <<"Resistor. ";
-               // cout <<resistor->info()<<endl;
-            }
-            
-            /*
-            else if (type == "input"){
-                Input *input = (Input *)element;
-                cout <<"state: ";
-                cout << input->state() <<endl;
-            }
-            */
         }
 
         Wire::Wire(Pin *pin0, Pin *pin1):voltage_(false)/*,reachable_(false)*/{

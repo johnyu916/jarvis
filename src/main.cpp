@@ -1,10 +1,12 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <unistd.h>
 
 #include "Commands.h"
 #include "Devices.h"
 #include "Parser.h"
+#include "Settings.h"
 #include "State.h"
 
 using namespace Jarvis;
@@ -36,7 +38,29 @@ void printHelp(){
 }
 
 int main(int argc, char *argv[]){
+
+    char c;
+    while ((c = getopt(argc, argv, "dh")) != -1){
+        switch (c){
+            case 'd':
+                cout <<"debug on"<<endl;
+                Settings::instance().verbose(true);
+                break;
+            case 'h':
+                printHelp();
+                return 0;
+                break;
+            default:
+                printHelp();
+                return 100;
+        }
+    }
+
+    if (optind < argc) return runScript(argv[optind]);
+    else return runShell();
+    
     //file name
+    /*
     if (argc == 1){
         return runShell();
     }
@@ -46,6 +70,7 @@ int main(int argc, char *argv[]){
     else{
         printHelp();
     }
+    */
     //some component
     //construct something.
     

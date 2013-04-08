@@ -1,10 +1,11 @@
 #logical NOT gate
-load power pow
+load source bat
+load ground gro
 load switch s
 load resistor r
-link pow source r p0
+link bat r p0
 link r p1 s p0
-link s p1 pow ground
+link s p1 gro
 bridge s in in
 bridge s p0 out
 #show

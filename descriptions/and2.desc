@@ -1,13 +1,14 @@
 # logical AND2 gate
 clear
-load power pow
+load source bat
+load ground gro
 load switch t0
 load switch t1
 load resistor r0
-link pow source t0 p0
+link bat t0 p0
 link t0 p1 t1 p0
 link t1 p1 r0 p0
-link r0 p1 pow ground
+link r0 p1 gro
 bridge t0 in in0
 bridge t1 in in1
 bridge t1 p1 out

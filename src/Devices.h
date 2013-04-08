@@ -15,16 +15,20 @@ namespace Jarvis{
             SWITCH,
             METER,
         };
+
+        class Device;
         
         class Element{
             public:
-                Element(string name, string type);
+                Element(string name, string type, Device *parent);
                 string name(){return name_;}
                 string type(){return type_;}
                 virtual string info();
                 bool visited(){ return visited_;}
                 void visited(bool visited){ visited_=visited;}
+                Device *parent(){return parent_;}
             protected:
+                Device *parent_;
                 string name_;
                 string type_;
                 bool visited_;
@@ -52,7 +56,7 @@ namespace Jarvis{
             public:
                 Device();
                 ~Device();
-                Device(string name, string type);
+                Device(string name, string type, Device *parent);
                 list<Device *>& devices(){return devices_;}
                 Device* device(string name);
                 list<Element *>& elements(){return elements_;}
@@ -62,10 +66,12 @@ namespace Jarvis{
                 //list<PinLabel *>& pinLabels(){return pinLabels_;}
                 //PinLabel* pinLabel(string name);
                 string name(){return name_;}
+                Device *parent(){return parent_;}
                 string type(){return type_;}
             private:
                 string name_;
                 string type_;
+                Device *parent_;
                 list<Device *>devices_;
                 list<Element *>elements_;
                 //list<Bridge *>bridges_;
@@ -117,7 +123,7 @@ namespace Jarvis{
         //an active resistor has current flowing through it
         class Resistor : public Element{
             public:
-                Resistor(string name);
+                Resistor(string name, Device *parent);
                 Pin *pin(string name);
                 Pin *outPin(Pin *inPin);
                 //bool outVoltage(bool inV);
@@ -147,7 +153,7 @@ namespace Jarvis{
         */
         class Meter : public Element{
         public:
-            Meter(string name);
+            Meter(string name, Device *parent);
             ~Meter();
             Pin *pin(){return pin_;}
             string info();
@@ -157,8 +163,9 @@ namespace Jarvis{
         };
         class Source :public Element{
         public:
-            Source(string name);
+            Source(string name, Device *parent);
             ~Source();
+            string info();
             Pin *pin(){return pin_;}
         private:
             Pin *pin_;
@@ -177,8 +184,9 @@ namespace Jarvis{
 
         class Ground : public Element{
         public:
-            Ground(string name);
-            Ground();
+            Ground(string name, Device *parent);
+            ~Ground();
+            string info();
             Pin *pin(){return pin_;}
         private:
             Pin *pin_;
@@ -186,7 +194,7 @@ namespace Jarvis{
         
         class Bridge : public Element{
         public:
-            Bridge(string name, Pin *pin);
+            Bridge(string name, Pin *pin, Device *parent);
             ~Bridge();
             Pin *in(){ return in_; }
             Pin *out(){ return out_; }
@@ -200,7 +208,7 @@ namespace Jarvis{
         class Switch : public Element{
             //transistor has 3 wires.
         public:
-            Switch(string name);
+            Switch(string name, Device *parent);
             ~Switch();
             enum PIN_NAME{
                 P0 = 0,

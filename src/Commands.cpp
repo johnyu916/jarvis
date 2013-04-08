@@ -51,19 +51,15 @@ namespace Jarvis{
                 command.pop_front();
                 return swit->pin(pinName);
             }
-            else if (type == "power"){
-                Power *power = (Power *)oneElement;
-                string pinName = command.front();
-                command.pop_front();
-                return power->pin(pinName);
+            else if (type == "source"){
+                Source *power = (Source *)oneElement;
+                return power->pin();
             }
-                /*
-                else if (type == "GROUND"){
-                    Ground *ground = (Ground *)oneElement;
-                    return ground->pin();
+            else if (type == "ground"){
+                Ground *ground = (Ground *)oneElement;
+                return ground->pin();
 
-                }
-                */
+            }
             else if (type == "meter"){
                 Meter *meter = (Meter *)oneElement;
                 return meter->pin();
@@ -129,9 +125,8 @@ namespace Jarvis{
     int runLoad(Command cmd){
    // int runLoad(list<string> command){
        //cout <<"in runLoad"<<endl;
-        
 
-       list<string> command = cmd.tokens();
+        list<string> command = cmd.tokens();
         int size = command.size();
         if (size != 2) {
             cerr << "Must have at least 2 arguments but has: "<<size<<" "<<endl;
@@ -169,17 +164,20 @@ namespace Jarvis{
                 element = new Input(name);
             }*/
             if (type == "meter"){
-                element = new Meter(name);
+                element = new Meter(name,canvas);
             }
-            else if (type == "power"){
+            else if (type == "source"){
                 //cout <<"in runLoad power"<<endl;
-                element = new Power(name);
+                element = new Source(name,canvas);
+            }
+            else if (type == "ground"){
+                element = new Ground(name,canvas);
             }
             else if (type == "resistor"){
-                element = new Resistor(name);
+                element = new Resistor(name,canvas);
             }
             else if (type == "switch"){
-                element = new Switch(name);
+                element = new Switch(name,canvas);
             }
             else{
                 //this may be a device. look for it.
@@ -187,7 +185,7 @@ namespace Jarvis{
                 filename.append(type);
                 filename.append(".desc");
                 //type.append(".desc");
-                Device *newDevice = new Device(name, type);
+                Device *newDevice = new Device(name, type, canvas);
                 int result = runScript(filename, newDevice);
                 if (result == 0){
                     canvas->devices().push_back(newDevice);
@@ -276,7 +274,7 @@ namespace Jarvis{
         string name = tokens.front();
         tokens.pop_front();
         Device *device = command.device();
-        Bridge *bridge = new Bridge(name, pinOne);
+        Bridge *bridge = new Bridge(name, pinOne,device);
         device->elements().push_back(bridge);
         //device->bridges().push_back(bridge);
         //PinLabel* label = new PinLabel(name,pinOne);
@@ -314,7 +312,7 @@ namespace Jarvis{
 
         //turn on first
         while (steps > 0){
-            cout <<"steps left: "<<steps<<endl;
+            debug("steps left: "<<steps);
             int rVal = compute(command.device());
             if (rVal != 0) return rVal;
             steps--;

@@ -1,6 +1,7 @@
 #include "Compute.h"
 #include <iostream>
 
+#include "Utilities.h"
 namespace Jarvis{
     using namespace Devices;
     void activateResistors(list<Resistor *>resistors){
@@ -8,7 +9,7 @@ namespace Jarvis{
         for (rit = resistors.begin(); rit != resistors.end(); rit++){
             Resistor *resistor = (*rit);
             resistor->isActive(true);
-            cout <<"activated resistor: "<<resistor->info()<<endl;
+            debug("activated resistor: "<<resistor->info());
         }
     }
 
@@ -38,22 +39,19 @@ namespace Jarvis{
         for (it = pins.begin(); it != pins.end(); it++){
             Pin *pin = (*it);
             if (pin == source) continue;
-            //get element for power
+            //get element for source
             Element *element = pin->element();
             if (element->visited()) continue;
             element->visited(true);
-            if (element->type() == "power"){
-                Power *power = (Power *)element;
-                if (pin == power->pin("ground")){
-                    //cout <<"ground reached: "<<endl;
-                    //end reached.
-                    activateResistors(resistors);
-                    //upWires(wires);
-                    return;
-                }
-                else {
-                    cerr << "Encountered power source while completing circuit."<<endl;
-                }
+            if (element->type() == "source"){
+                cerr << "Encountered source source while completing circuit."<<endl;
+                return;
+            }
+            else if (element->type() == "ground"){
+                //cout <<"ground reached: "<<endl;
+                //end reached.
+                activateResistors(resistors);
+                //upWires(wires);
             }
             else if (element->type() == "switch"){
                 Switch *switc = (Switch *)element;
@@ -101,12 +99,12 @@ namespace Jarvis{
     }
 
     int completeResistor(Element *e){
-        if (e->type() == "power"){
-            Power *power = (Power *)e;
-            Pin *source = power->pin("source");
-            power->visited(true);
+        if (e->type() == "source"){
+            Source *source = (Source *)e;
+            source->visited(true);
+            Pin *pin= source->pin();
             list<Resistor *>resistors;
-            spanResistors(source,resistors);
+            spanResistors(pin,resistors);
         }
         return 0;
     }
@@ -182,17 +180,20 @@ namespace Jarvis{
             Element *element = pin->element();
             if (element->visited()) continue;
             element->visited(true);
-            if (element->type() == "power"){
-                Power *power = (Power *)element;
-                if (pin == power->pin("ground")){
-                    bool gv = pin->wire()->voltage();
-                    if (gv){
-                        cerr << "error: voltage at ground is high. " << pin->wire()->info()<<endl;
-                        return 24;
-                    }
+            
+            if (element->type() == "source"){
+                Source *source = (Source *)element;
+                //warning? 
+
+            }
+            else if(element->type() == "ground"){ 
+                bool gv = pin->wire()->voltage();
+                if (gv){
+                    cerr << "error: voltage at ground is high. " << pin->wire()->info()<<endl;
+                    return 24;
                 }
             }
-            if (element->type() == "switch"){
+            else if (element->type() == "switch"){
                 Switch *switc = (Switch *)element;
                 if (!switc->isOn()) continue;
                 Pin *nextPin = switc->outPin(pin);
@@ -223,21 +224,21 @@ namespace Jarvis{
         return 0;
     }
     int resetWires(Element *e){
-        if (e->type() == "power"){
-            Power *power = (Power *)e;
-            power->visited(true);
-            Pin *source = power->pin("source");
-            spanResetWires(source);
+        if (e->type() == "source"){
+            Source *source = (Source *)e;
+            source->visited(true);
+            Pin *pin= source->pin();
+            spanResetWires(pin);
         }
         return 0;
     }
 
     int completeVoltage(Element *e){
-        if (e->type() == "power"){
-            Power *power = (Power *)e;
-            power->visited(true);
-            Pin *source = power->pin("source");
-            return spanVoltage(source,true);
+        if (e->type() == "source"){
+            Source *source = (Source *)e;
+            source->visited(true);
+            Pin *pin = source->pin();
+            return spanVoltage(pin,true);
         }
         return 0;
     }
@@ -256,10 +257,10 @@ namespace Jarvis{
     int compute(Device *device){
         updateResistors(device);
 
-        cout <<"updated resistors"<<endl;
+        debug("updated resistors");
         int rVal = updateVoltages(device);
         if (rVal != 0) return rVal;
-        cout <<"updated voltages"<<endl;
+        debug("updated voltages");
 
         toggleSwitches(device);
         return 0;

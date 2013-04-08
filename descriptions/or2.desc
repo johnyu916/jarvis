@@ -1,14 +1,15 @@
 # logical OR2 gate
 clear
-load power pow
+load source bat
+load ground gro
 load switch switchOne
 load switch switchTwo
 load resistor res
-link pow source switchOne p0
-link pow source switchTwo p0
+link bat switchOne p0
+link bat switchTwo p0
 link switchOne p1 res p0
 link switchTwo p1 res p0
-link res p1 pow ground
+link res p1 gro
 bridge switchOne in in0
 bridge switchTwo in in1
 bridge switchTwo p1 out
