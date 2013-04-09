@@ -92,7 +92,7 @@ namespace Jarvis{
         }
     }
     int runScript(string fileName){
-        Device *device = new Device("jarvis", "canvas");
+        Device *device = new Device("jarvis", "canvas", NULL);
         return runScript(fileName, device);
     }
 

@@ -55,7 +55,7 @@ namespace Jarvis{
             }
             else if (element->type() == "switch"){
                 Switch *switc = (Switch *)element;
-                if (!switc->isOn()) return;
+                if (!switc->isOn()) continue;
 
                 Pin *nextPin = switc->outPin(pin);
                 spanResistors(nextPin,resistors);

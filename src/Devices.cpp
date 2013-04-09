@@ -12,7 +12,7 @@ namespace Jarvis{
             Device *parent = parent_;
             string name = name_;
             while (parent != NULL){
-                name = parent->name() + name;
+                name = parent->name() + '/'+ name;
                 parent = parent->parent();
             }
             return name + " " + type_;
