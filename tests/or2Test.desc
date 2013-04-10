@@ -1,0 +1,22 @@
+load or2 gate
+load input i0
+load input i1
+load meter m0
+link m0 gate out
+link i0 low gate in0
+link i1 low gate in1
+#show
+run 3
+show m0
+unlink i0 low
+link i0 high gate in0
+run 3
+show m0
+unlink i1 low
+link i1 high gate in1
+run 3
+show m0
+unlink i0 high
+link i0 low gate in0
+run 3
+show m0

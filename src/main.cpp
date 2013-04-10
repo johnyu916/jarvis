@@ -35,15 +35,16 @@ void printHelp(){
     cout << "Usage:"<<endl;
     cout << "jarvis" <<endl;
     cout << "jarvis script"<<endl;
+    cout << "-v for verbose, -h for help"<<endl;
 }
 
 int main(int argc, char *argv[]){
 
     char c;
-    while ((c = getopt(argc, argv, "dh")) != -1){
+    while ((c = getopt(argc, argv, "vh")) != -1){
         switch (c){
-            case 'd':
-                cout <<"debug on"<<endl;
+            case 'v':
+                cout <<"verbose on"<<endl;
                 Settings::instance().verbose(true);
                 break;
             case 'h':

@@ -1,6 +1,7 @@
 load and2 andgate
 load not notgate
 link andgate out notgate in
-label andgate in0 in0
-label andgate in1 in1
-label notgate out out
+bridge andgate in0 in0
+bridge andgate in1 in1
+bridge notgate out out
+show 3

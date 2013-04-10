@@ -1,0 +1,12 @@
+load not gate
+load meter met
+link met gate out
+load input signal
+link signal low gate in
+#show
+run 3
+show met
+unlink signal low
+link signal high gate in
+run 3
+show met

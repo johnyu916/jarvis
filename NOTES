@@ -81,6 +81,9 @@ value:
 high
 low
 
+>> verbose on
+>> verbose off
+
 >> run
 >> run 1
 run test. it can potentially run for a long time, so it needs to run on the background. or it may need timeouts. runs in a separate thread. if already running, then stop and run again. 
@@ -89,6 +92,10 @@ run test. it can potentially run for a long time, so it needs to run on the back
 step 
 >> show
 show values at every wire
+show 1 shows just current level. 
+show 2 shows current level and one level down.
+>> show device 1
+start at device 1 and stay there
 
 >> stop
 stop (freeze) the machine, if it is running.

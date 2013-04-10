@@ -11,6 +11,11 @@ namespace Jarvis{
     using namespace Devices;
 
     void tokenize(string line, list<string>&tokens){
+        //cout <<"line: "<<line<<"."<<endl;
+        line.erase(0, line.find_first_not_of(" "));
+        line.erase(line.find_last_not_of(" \n\r\t")+1);
+        //cout <<"line2: "<<line<<"."<<endl;
+        if (line.size() == 0) return;
         istringstream stream(line);
         while (stream.good()){
             string token;
@@ -353,33 +358,104 @@ namespace Jarvis{
     //what are some interesting things to show?
     //value at output pin
     //connectivity (structure)
+    //show should have levels
     //
-    int runShow(Command command){
-        list<string>tokens = command.tokens();
-        Device *device = command.device();
+    int showHelp(Device *device, list<string> tokens){
+        int level = 1;
         if (tokens.size() == 0){
             //no tokens. show everything
-            devicePrint(device);
-            return 0;
+            devicePrint(device, level);
         }
         
-        string name = tokens.front();
-        if (name == "CANVAS"){
-            //printDevice(command.device());
-            devicePrint(device);
+        string token= tokens.front();
+        if (isNumber(token)){
+            istringstream(token) >> level;
+            devicePrint(device,level);
+        }
+        return 0;
+    }
+    int runShow(Command command){
+        Device *device = command.device();
+        list<string>tokens = command.tokens();
+        int level = 1;
+        if (tokens.size() == 0) {
+            devicePrint(device,level);
+            return 0;
+        }
+        string token = tokens.back();
+        tokens.pop_back();
+        if (isNumber(token)) istringstream(token) >> level;
+        else{
+            //maybe element or device
+            Element *element = device->element(token);
+            if (element != NULL) {
+                elementPrint(element);
+                return 0;
+            }
+            Device *device = device->device(token);
+            if (device){
+                devicePrint(device,level);
+                return 0;
+            }
+
+            cerr <<"Error processing token: "<<token<<endl;
+            return 28;
+        }
+        if (tokens.size() == 0){
+            devicePrint(device,level);
+            return 0;
+        }
+
+        token = tokens.back();
+        tokens.pop_back();
+        device = device->device(token);
+        if (device){
+            devicePrint(device,level);
             return 0;
         }
         else{
-            Element *element = device->element(name);
-            if (element != NULL){
-                elementPrint(element);
-            }
-
-
+            cerr <<"Error processing token: "<<token<<endl;
+            return 29;
         }
-        //try to locate this element
+        
+        
+    }
 
+    /*
+    int runShow(Command command){
+        Device *device = command.device();
+        list<string>tokens = command.tokens();
+        if (tokens.size() == 0) return showHelp(device,tokens);
+        string token = tokens.front();
+        if (isNumber(token)) return showHelp(device,tokens); 
+        tokens.pop_front();
+        
+        Device *childDevice = device->device(token);
+        if (childDevice) return showHelp(device,tokens);
+        
+        Element *element = device->element(token);
+        if (element != NULL) elementPrint(element);
 
         return 0;
+    }*/
+    int runVerbose(Command command){
+        list<string>tokens = command.tokens();
+        if (tokens.size() == 0) {
+            cerr << "runVerbose: no tokens left"<<endl;
+            return 27;
+        }
+
+        string token = tokens.front();
+        if (token == "on"){
+            Settings::instance().verbose(true);
+        }
+        else if (token == "off"){
+            Settings::instance().verbose(false);
+        }
+        else{
+            cerr << "unrecognized verbose action: " << token <<endl;
+            return 28;
+        }
+
     }
 }

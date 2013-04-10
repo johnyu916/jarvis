@@ -1,0 +1,9 @@
+load and2 gate
+load meter m0
+link m0 gate out
+load power i0
+load power i1
+link i0 ground gate in0
+link i1 source gate in1
+run 3
+show m0

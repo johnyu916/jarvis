@@ -1,0 +1,8 @@
+load source bat
+load ground gro
+load resistor res
+link bat res p0
+link gro res p1
+bridge res p0 high
+bridge res p1 low
+show

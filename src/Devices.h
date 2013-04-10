@@ -9,7 +9,8 @@ namespace Jarvis{
     namespace Devices{
         //primitive device types
         enum DEVICE_TYPE{
-            POWER = 0,
+            SOURCE = 0,
+            GROUND,
             RESISTOR,
             BRIDGE,
             SWITCH,
@@ -22,6 +23,7 @@ namespace Jarvis{
             public:
                 Element(string name, string type, Device *parent);
                 string name(){return name_;}
+                string fullName();
                 string type(){return type_;}
                 virtual string info();
                 bool visited(){ return visited_;}
@@ -108,6 +110,8 @@ namespace Jarvis{
                 Pin(Element *element, string name);
                 ~Pin();
                 string name(){ return name_;}
+                string fullName();
+                string info();
                 void wire(Wire *wire){ wire_=wire;}
                 Wire *wire(){return wire_;}
                 Element *element(){
@@ -235,7 +239,7 @@ namespace Jarvis{
 
         void deviceClear(Device *device);
 
-        void devicePrint(Device *device);
+        void devicePrint(Device *device, int level);
         void elementPrint(Element *element);
 
         Device* deviceWithName(Device* device, string name);

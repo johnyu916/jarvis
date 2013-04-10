@@ -1,0 +1,9 @@
+load input signal
+load meter m0
+load meter m1
+link m0 signal high
+link m1 signal low
+run 3
+#show
+show m0
+show m1

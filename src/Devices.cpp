@@ -6,22 +6,24 @@ namespace Jarvis{
     namespace Devices{
         Element::Element(string name, string type, Device *parent):name_(name),type_(type),visited_(false),parent_(parent){
         }
-
-        string Element::info(){
-            //recursively get the name
-            Device *parent = parent_;
+        string Element::fullName(){
             string name = name_;
+            Device *parent = parent_;
             while (parent != NULL){
                 name = parent->name() + '/'+ name;
                 parent = parent->parent();
             }
-            return name + " " + type_;
+            return name;
+        }
+
+        string Element::info(){
+            //recursively get the name
+            Device *parent = parent_;
+            return type_ +" name: "+ fullName();
         }
         Bridge::Bridge(string name, Pin *inPin, Device *parent):Element(name,"bridge", parent){
-            string pinName = name + "/in";
-            in_ = new Pin(this, pinName);
-            pinName = name + "/out";
-            out_ = new Pin(this, pinName);
+            in_ = new Pin(this, "in");
+            out_ = new Pin(this, "out");
 
             linkPins(inPin, in_);
         }
@@ -37,26 +39,16 @@ namespace Jarvis{
         }
         string Bridge::info(){
             ostringstream sout;
-            sout <<"Bridge: "<< name_;
-            sout <<" ";
-            sout <<"In Wire: "<< in_->wire()->info() <<endl;
-            Wire *outWire = out_->wire();
-            if (outWire){
-                sout <<"Out Wire: "<<outWire->info() <<endl;
-            }
+            sout << Element::info()<<endl;
+            sout << in_->info()<<endl;
+            sout << out_->info();
             return sout.str();
         }
 
         Switch::Switch(string name, Device *parent):Element(name,"switch",parent){
-            string pinName = name;
-            pinName.append("/P0");
-            p0_ = new Pin(this,pinName);
-            pinName = name;
-            pinName.append("/P1");
-            p1_ = new Pin(this, pinName);
-            pinName = name;
-            pinName.append("/IN");
-            in_ = new Pin(this, pinName);
+            p0_ = new Pin(this,"p0");
+            p1_ = new Pin(this, "p1");
+            in_ = new Pin(this, "in");
         }
         Switch::~Switch(){
             delete p0_;
@@ -71,29 +63,25 @@ namespace Jarvis{
             else return NULL;
         }
         Ground::Ground(string name,Device *parent):Element(name,"ground",parent){
-            pin_ = new Pin(this, name);
+            pin_ = new Pin(this, "pin");
         }
         Ground::~Ground(){
             delete pin_;
         }
         string Ground::info(){
             ostringstream sout;
-            sout <<"type: Ground: ";
-            Wire *wire = pin_->wire();
-            if (wire) sout <<" wire: "<<wire->info()<<endl;
+            sout << Element::info() << " pin: "<<pin_->info();
             return sout.str();
         }
         Source::Source(string name, Device *parent):Element(name,"source", parent){
-            pin_ = new Pin(this, name);
+            pin_ = new Pin(this, "pin");
         }
         Source::~Source(){
             delete pin_;
         }
         string Source::info(){
             ostringstream sout;
-            sout <<"type: Source: ";
-            Wire *wire = pin_->wire();
-            if (wire) sout <<" wire: "<<wire->info()<<endl;
+            sout << Element::info() << " pin: "<<pin_->info();
             return sout.str();
         }
         /*
@@ -128,10 +116,8 @@ namespace Jarvis{
         }
         */
         Resistor::Resistor(string name, Device *parent):Element(name,"resistor", parent){
-            string pinName = name + "/p0";
-            p0_ = new Pin(this, pinName);
-            pinName = name + "/p1";
-            p1_ = new Pin(this, pinName);
+            p0_ = new Pin(this, "p0");
+            p1_ = new Pin(this, "p1");
             isActive_ = false;
         }
         Pin *Resistor::pin(string name){
@@ -154,8 +140,8 @@ namespace Jarvis{
         string Resistor::info(){
             ostringstream sout;
             sout << Element::info()<<endl;
-            sout << "p0 wire: " << p0_->wire()->info()<<endl;
-            sout << "p1 wire: " << p1_->wire()->info()<<endl;
+            sout << p0_->info()<<endl;
+            sout << p1_->info();
             return sout.str();
         }
 
@@ -177,14 +163,14 @@ namespace Jarvis{
         }
         */
         Meter::Meter(string name, Device *parent):Element(name,"meter",parent){
-            pin_ = new Pin(this,name);
+            pin_ = new Pin(this,"pin");
         }
         Meter::~Meter(){
             delete pin_;
         }
         string Meter::info(){
             ostringstream sout;
-            sout <<"Meter. "<<name_<<" state: ";
+            sout << Element::info() <<" state: ";
             sout <<pin_->wire()->voltage();
             return sout.str();
         }
@@ -308,14 +294,15 @@ namespace Jarvis{
 
         }
 
-        void devicePrint(Device *device){
+        void devicePrint(Device *device, int level){
+            if (level == 0) return;
             printNameTypeLabels(device);
 
             list<Device *> devices = device->devices();
             list<Device *>::iterator diter;
             for (diter = devices.begin(); diter != devices.end(); diter++){
                 Device *child = (*diter);
-                printNameTypeLabels(child);
+                devicePrint(child, level-1);
             }
 
             list<Element *>elements = device->elements();
@@ -328,8 +315,7 @@ namespace Jarvis{
 
 
         void elementPrint(Element *element){
-            cout <<"element: "<<element->info() <<endl;
-            string type = element->type();
+            cout <<element->info() <<endl;
         }
 
         Wire::Wire(Pin *pin0, Pin *pin1):voltage_(false)/*,reachable_(false)*/{
@@ -342,14 +328,14 @@ namespace Jarvis{
             string name ="";
             for (pit = pins_.begin(); pit != pins_.end(); pit++){
                 Pin *pin = (*pit);
-                name.append(pin->name());
+                name.append(pin->fullName());
                 name.append("--");
             }
             return name;
         }
         string Wire::info(){
             ostringstream stream;
-            stream << name() <<endl<<"voltage: " << voltage_;
+            stream << "wire name: "<< name() <<" voltage: " << voltage_;
             return stream.str();
             
         }
@@ -376,13 +362,10 @@ namespace Jarvis{
         }
         string Switch::info(){
             ostringstream sout;
-            sout <<"Switch. P0: ";
-            //sout <<switc->pin("p0")->wire()->name();
-            sout <<p0_->wire()->name();
-            sout <<" P1: ";
-            sout <<p1_->wire()->name();
-            sout <<" IN: ";
-            sout <<in_->wire()->name();
+            sout <<Element::info()<<endl;
+            sout <<p0_->info()<<endl;
+            sout <<p1_->info()<<endl;
+            sout <<in_->info();
             return sout.str();
 
         }
@@ -401,6 +384,15 @@ namespace Jarvis{
         }
         Pin::~Pin(){
             //wire_->deletePin(this);            
+        }
+        string Pin::fullName(){
+            return element_->fullName() + "/" + name_;
+        }
+        string Pin::info(){
+            ostringstream sout;
+            sout <<"pin name: " <<fullName();
+            if (wire_) sout <<" " <<wire_->info();
+            return sout.str();
         }
 
         //pre: pins must exist

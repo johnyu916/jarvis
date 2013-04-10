@@ -1,6 +1,6 @@
 load or2 orgate
 load not notgate
 link orgate out notgate in
-label orgate in0 in0
-label orgate in1 in1
-label notgate out out
+bridge orgate in0 in0
+bridge orgate in1 in1
+bridge notgate out out

@@ -9,4 +9,10 @@ namespace Jarvis{
         }
         cerr <<endl;
     }
+    bool isNumber(const string& s)
+    {
+            string::const_iterator it = s.begin();
+            while (it != s.end() && std::isdigit(*it)) ++it;
+            return !s.empty() && it == s.end();
+    }
 }
