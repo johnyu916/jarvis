@@ -4,4 +4,4 @@ link andgate out notgate in
 bridge andgate in0 in0
 bridge andgate in1 in1
 bridge notgate out out
-show 3
+#show 3

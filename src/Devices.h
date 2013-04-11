@@ -26,14 +26,11 @@ namespace Jarvis{
                 string fullName();
                 string type(){return type_;}
                 virtual string info();
-                bool visited(){ return visited_;}
-                void visited(bool visited){ visited_=visited;}
                 Device *parent(){return parent_;}
             protected:
                 Device *parent_;
                 string name_;
                 string type_;
-                bool visited_;
         };
 
         /*
@@ -91,16 +88,12 @@ namespace Jarvis{
             Wire(Pin *pin0, Pin *pin1);
             list<Pin *>& pins(){return pins_;}
             string info();
-            //new pin
-            //void linkPin(Pin *pin);
-            //void unlinkPin(Pin *pin);
             string name();
             
             bool voltage(){ return voltage_; }
             void voltage(bool state){voltage_=state;}
         private:
             bool voltage_; //high or low
-           // bool visited_; //has been visited
             //bool reachable_; //is this reachable from plus terminal?
             list<Pin *> pins_;
         };
@@ -112,13 +105,14 @@ namespace Jarvis{
                 string name(){ return name_;}
                 string fullName();
                 string info();
+                bool visited(){ return visited_;}
+                void visited(bool visited){ visited_=visited;}
                 void wire(Wire *wire){ wire_=wire;}
                 Wire *wire(){return wire_;}
-                Element *element(){
-                    return element_;
-                }
+                Element *element(){return element_;}
             private:
                 Wire *wire_;
+                bool visited_;
 
                 Element *element_;
                 string name_;

@@ -4,7 +4,7 @@
 #include "State.h"
 namespace Jarvis{
     namespace Devices{
-        Element::Element(string name, string type, Device *parent):name_(name),type_(type),visited_(false),parent_(parent){
+        Element::Element(string name, string type, Device *parent):name_(name),type_(type),parent_(parent){
         }
         string Element::fullName(){
             string name = name_;
@@ -70,7 +70,7 @@ namespace Jarvis{
         }
         string Ground::info(){
             ostringstream sout;
-            sout << Element::info() << " pin: "<<pin_->info();
+            sout << Element::info() << " "<<pin_->info();
             return sout.str();
         }
         Source::Source(string name, Device *parent):Element(name,"source", parent){
@@ -81,7 +81,7 @@ namespace Jarvis{
         }
         string Source::info(){
             ostringstream sout;
-            sout << Element::info() << " pin: "<<pin_->info();
+            sout << Element::info() << " "<<pin_->info();
             return sout.str();
         }
         /*
@@ -381,6 +381,7 @@ namespace Jarvis{
             element_ = element;
             wire_ = NULL;
             name_=name;
+            visited_=false;
         }
         Pin::~Pin(){
             //wire_->deletePin(this);            

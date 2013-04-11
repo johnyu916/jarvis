@@ -1,4 +1,4 @@
-load and2 gate
+load nor2 gate
 load input i0
 load input i1
 load meter m0
