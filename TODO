@@ -11,3 +11,5 @@ Importance:
 3. construct input device as power-resistor-ground
 
 4. visit pins as marked instead of wires
+
+3. Try designing the simplest processor possible, with 3 instructions: branch not equal, read, and write
