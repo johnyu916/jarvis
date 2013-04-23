@@ -1,0 +1,9 @@
+load nand2 gate
+load input i0
+load input i1
+load meter m0
+link m0 gate out
+link i0 high gate in0
+link i1 high gate in1
+run 3
+show m0

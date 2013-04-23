@@ -1,0 +1,43 @@
+load mux2 mux
+load input i0
+load input i1
+load input selector
+load meter m0
+link m0 mux out
+link i0 low mux in0
+link i1 low mux in1
+link selector low mux select
+#show
+run 3
+show m0
+unlink i0 low
+link i0 high mux in0
+run 3
+show m0
+unlink i1 low
+link i1 high mux in1
+run 3
+show m0
+unlink i0 high
+link i0 low mux in0
+run 3
+show m0
+# set selector to high and redo 4 cases
+unlink selector low
+link selector high mux select
+unlink i1 high
+link i1 low mux in1
+run 3
+show m0
+unlink i0 low
+link i0 high mux in0
+run 3
+show m0
+unlink i1 low
+link i1 high mux in1
+run 3
+show m0
+unlink i0 high
+link i0 low mux in0
+run 3
+show m0
